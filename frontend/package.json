@@ -1,0 +1,72 @@
+{
+	"name": "enact-template",
+	"version": "1.0.0",
+	"description": "Enact Template",
+	"author": "LG Electronics, Inc.",
+	"main": "src/index.js",
+	"scripts": {
+		"build": "npm run pack -- --production --isomorphic --snapshot --locales=tv",
+		"clean": "enact clean",
+		"format": "prettier --write \"src/**/*.js?(x)\"",
+		"lint": "enact lint --local src -- --rule 'linebreak-style: 0, react/no-danger: 0'",
+		"pack": "enact pack",
+		"pack:p": "npm run pack -- --production",
+		"serve": "enact serve",
+		"start": "npm run serve",
+		"test": "enact test",
+		"test:all": "npm test -- --coverage --verbose --silent",
+		"test:coverage": "npm test -- --coverage",
+		"test:watch": "npm test -- --watch"
+	},
+	"license": "UNLICENSED",
+	"private": true,
+	"repository": "",
+	"enact": {
+		"isomorphic": true,
+		"theme": "sandstone",
+		"deep": [
+			"(window.webOSSystem && window.webOSSystem.highContrast === 'on')"
+		]
+	},
+	"jest": {
+		"collectCoverageFrom": [
+			"src/**/*.{js,jsx}",
+			"!src/index.js",
+			"!src/libs/log.js"
+		]
+	},
+	"moduleNameMapper": {
+		"^uuid$": "uuid"
+	},
+	"dependencies": {
+		"@enact/core": "^4.7.0",
+		"@enact/i18n": "^4.7.0",
+		"@enact/sandstone": "^2.7.0",
+		"@enact/spotlight": "^4.7.0",
+		"@enact/ui": "^4.7.0",
+		"@enact/webos": "^4.7.0",
+		"axios": "^1.5.0",
+		"hls.js": "^1.4.12",
+		"ilib": "^14.17.0",
+		"prop-types": "^15.8.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
+	"devDependencies": {
+		"eslint-config-enact-proxy": "^1.0.5",
+		"http-proxy-middleware": "^2.0.6",
+		"husky": "^4.3.8",
+		"lint-staged": "^12.1.7",
+		"prettier": "^2.5.1"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "npm run test:all"
+		}
+	},
+	"lint-staged": {
+		"src/**/*.js": [
+			"npm run lint -- --fix"
+		]
+	}
+}

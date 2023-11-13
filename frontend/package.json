@@ -6,14 +6,14 @@
 	"main": "src/index.js",
 	"scripts": {
 		"build": "npm run pack -- --production --isomorphic --snapshot --locales=tv",
-		"clean": "enact clean",
+		"clean": "npx enact clean",
 		"format": "prettier --write \"src/**/*.js?(x)\"",
-		"lint": "enact lint --local src -- --rule 'linebreak-style: 0, react/no-danger: 0'",
-		"pack": "enact pack",
+		"lint": "npx enact lint --local src -- --rule 'linebreak-style: 0, react/no-danger: 0'",
+		"pack": "npx enact pack",
 		"pack:p": "npm run pack -- --production",
-		"serve": "enact serve",
+		"serve": "npx enact serve",
 		"start": "npm run serve",
-		"test": "enact test",
+		"test": "npx enact test",
 		"test:all": "npm test -- --coverage --verbose --silent",
 		"test:coverage": "npm test -- --coverage",
 		"test:watch": "npm test -- --watch"
@@ -49,8 +49,10 @@
 		"hls.js": "^1.4.12",
 		"ilib": "^14.17.0",
 		"prop-types": "^15.8.1",
+		"query-string": "^8.1.0",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.18.0"
 	},
 	"devDependencies": {
 		"eslint-config-enact-proxy": "^1.0.5",

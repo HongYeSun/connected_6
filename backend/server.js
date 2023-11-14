@@ -18,15 +18,20 @@ app.use(express.json());
 
 
 const session = require("express-session");
+const cookieParser = require('cookie-parser');
 // 세션 설정
 app.use(session({
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: {
+        secure: false, // HTTPS를 사용할 경우 true로 설정
+        maxAge: 1000 * 60 * 60 * 24, // 세션 유지 기간 1일
+    },
 }));
 
 const passport = require('passport');
+app.use(cookieParser());
 const passportConfig = require('./passport');
 passportConfig();
 app.use(passport.initialize());

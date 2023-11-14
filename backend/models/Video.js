@@ -7,11 +7,12 @@ const VideoSchema = new mongoose.Schema({
     title: { type: String, required: true },
     subtitle: { type: String, required: true }, //제작자
     description: { type: String, required: true }, //설명
+    thumb:{ type: String, required: true }, //썸네일
     source: { type: String, required: true }, //파일 저장 대신 url
    // duration: { type: Number, required: true },
-    bookmark: {type:Number,min:0,required:true},
-    like:  {type:Number,min:0,required:true},
-    thumb:{ type: String, required: true }, //파일 저장 대신 url
+    bookmark: {type:Number,default:0,required:true}, //북마크 한 수
+    like:  {type:Number,default:0,required:true}, //좋아요 한 수
+    views: { type: Number, default: 0, required: true } // 조회수
 
 });
 

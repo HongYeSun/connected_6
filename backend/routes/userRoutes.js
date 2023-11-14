@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 // Get all users
 router.get('/', async (req, res) => {
   try {
@@ -15,42 +14,42 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Local Strategy 설정
-passport.use(new LocalStrategy(async (email, password, done) => {
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return done(null, false, { message: '사용자를 찾을 수 없습니다.' });
+//Login
+router.post('/login', isNotLoggedIn , (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error(err);
+      return next(err);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return done(null, false, { message: '비밀번호가 일치하지 않습니다.' });
+    if (info) {
+      console.error(info);
+      return res.status(401).send(info.reason);
     }
 
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
+    return req.login(user, (loginErr) => {
 
-// Login user
-router.post('/login', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureFlash: true
-}));
+      if (loginErr) return next(loginErr);
 
-// Logout user
-router.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
+      const filteredUser = Object.assign({}, user.toJSON());
+      delete filteredUser.password; //비밀번호 제외
+      return res.json(filteredUser);
+    });
+  })(req, res, next);
+});
+
+
+
+//Logout
+router.get('/logout',isLoggedIn ,(req, res)=>{
+  req.logout()
+  req.session.destroy();
+  //TODO: 여기서 종료시간 체크
+  res.redirect('/')
 });
 
 // Create user
-router.post('/', async (req, res) => {
+router.post('/', isNotLoggedIn, async (req, res) => {
   const user = new User(req.body);
   console.log(req);
   try {

@@ -4,8 +4,6 @@ const User = require('../models/User');
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
-const { activeUsers }  = require('./cron'); // 활동 중인 사용자 목록
-
 
 // Get all users
 router.get('/', async (req, res) => {
@@ -18,9 +16,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-//TODO:왜 한번 로그인 성공한 다음에 서버가 멈춰버리지?
+
 //Login
-router.post('/login', isNotLoggedIn,(req, res, next) => {
+router.post('/login', isNotLoggedIn, async(req, res, next) => {
   passport.authenticate('local',  (err, user, info) => {
 
       if (err) {
@@ -34,40 +32,53 @@ router.post('/login', isNotLoggedIn,(req, res, next) => {
       }
 
       // 사용자 인증에 성공한 경우, req.login을 통해 세션에 사용자 정보 저장
-      req.login(user, (loginErr) => {
+      req.login(user, async(loginErr) => {
         if (loginErr) {
           console.error(loginErr);
           return next(loginErr);
         }
 
-        // 세션에 저장된 사용자 정보에서 필요한 정보 추출
-        const { _id, email } = user; // 필요한 정보로 수정 필요
+          try {
+              // 사용자의 이전 요청 시간을 가져옴
+              const savedUser = await User.findById(user._id);
+              const lastRequestTime = savedUser.lastRequestTime;
 
-        // activeUsers 배열에 필요한 정보만 저장 (예: id나 email)
-        const userInfo = { _id, email }; // 필요한 정보로 수정 필요
-        activeUsers.push(userInfo);
+              // 현재 시간
+              const currentRequestTime = Date.now();
 
-      const filteredUser = Object.assign({}, user.toJSON());
-      delete filteredUser.password; // 비밀번호 제외
-      return res.json(filteredUser);
+              // 시간을 비교해서 날짜가 다르면 accessTimes 업데이트
+              if (!isSameDate(lastRequestTime, currentRequestTime)) {
+                  const hour = new Date(currentRequestTime).getHours();
+                  savedUser.accessTimes[hour]++;
+                  await savedUser.save();
+              }
+
+              // 사용자의 lastRequestTime 업데이트
+              savedUser.lastRequestTime = currentRequestTime;
+              await savedUser.save();
+
+              const filteredUser = Object.assign({}, user.toJSON());
+              delete filteredUser.password; // 비밀번호 제외
+              return res.json(filteredUser);
+          } catch (error) {
+              console.error(error);
+              return res.status(500).json({ message: 'Internal Server Error' });
+          }
       });
   })(req, res, next);
-
 });
-
-
+function isSameDate(date1, date2) {
+    return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()&&
+        date1.getHours()===date2.getHours()
+    );
+}
 //Logout
-router.get('/logout', isLoggedIn,  (req, res) => {
+router.get('/logout', isLoggedIn,  async(req, res) => {
 
-    const user = req.user;
 
-    // activeUsers 배열에서 제거
-    const index = activeUsers.findIndex((activeUser) => activeUser._id.toString() === user._id.toString());
-    if (index !== -1) {
-      activeUsers.splice(index, 1);
-    }
-
-    // 나머지 로그아웃 로직
     req.logout();
     req.session.destroy();
     res.redirect('/');
@@ -75,12 +86,10 @@ router.get('/logout', isLoggedIn,  (req, res) => {
 });
 
 // Create user
-//TODO: 각 해당사항별로 메세지 관리(이메일 중복.. 나머지는 required 문제라 프론트에서 해결하면 될듯?)
 router.post('/', isNotLoggedIn, async (req, res) => {
   const user = new User(req.body);
-  console.log(req);
   user.accessTimes = Array(24).fill(0); //시간 배열 초기화
-
+  user.lastRequestTime = Date.now();
   try {
     await user.save();
     res.status(201).json(user);

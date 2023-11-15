@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   bookmarkedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 찜한 비디오
   recentVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 최근에 본 비디오 (최대 20개)
   accessTimes: [{ type: Number }],  // 접속시간 (24시간 array)
-
+  lastRequestTime: { type: Date, default: Date.now }
 });
 
 // 비밀번호 암호화

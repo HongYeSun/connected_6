@@ -6,6 +6,7 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
 
 // Get all users
+//TODO: 보안문제(password)로 쓰면 안됨!! get all users 할일이 있을까...
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
@@ -89,11 +90,19 @@ async function updateAccessTimes(user) {
 //Logout
 router.get('/logout', isLoggedIn,  async(req, res) => {
 
-
-    req.logout();
-    req.session.destroy();
-    res.redirect('/');
-
+    req.logout(function(err) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Failed to log out" });
+        }
+        req.session.destroy(function(err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: "Failed to destroy session" });
+            }
+            res.end();
+        });
+    });
 });
 
 // Create user

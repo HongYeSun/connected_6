@@ -25,6 +25,7 @@ import profileImage15 from '../images/profile15.png';
 
 const ProfileSelectPage = () => {
     const navigate = useNavigate();
+    const userId = window.sessionStorage.getItem('userId');
 
     const profileImages = [
         profileImage1, profileImage2, profileImage3, profileImage4, profileImage5, 
@@ -32,14 +33,10 @@ const ProfileSelectPage = () => {
 		profileImage11, profileImage12, profileImage13, profileImage14, profileImage15
     ];
 
-    const handleImageSelect = async (imagePath) => {
+    const handleImageSelect = async (profileNumber) => {
         try {
-            // Save the selected profile image to the session storage
-            window.sessionStorage.setItem('profileImage', imagePath);
-
-            // Update user's profile image in the database (if required)
-            // const response = await axios.put('/api/UserProfileImage', { imagePath });
-            // console.log(response.data);
+            const response = await axios.put(`/api/users/${userId}`, { profilePicture: profileNumber });
+            console.log(response.data);
 
             navigate('/login'); 
         } catch (error) {
@@ -56,7 +53,7 @@ const ProfileSelectPage = () => {
                     <ImageItem
                         key={index}
                         src={image}
-                        onClick={() => handleImageSelect(image)}
+                        onClick={() => handleImageSelect(index+1)}
                         style={{
                             width: '200px',
                             height: '300px',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from '@enact/sandstone/Button';
 import { InputField } from '@enact/sandstone/Input';
 import { Scroller } from '@enact/sandstone/Scroller';
@@ -9,21 +9,14 @@ import css from "./Auth.module.less";
 
 const LoginPage = () => {
     const [loginDetails, setLoginDetails] = useState({
-        name: '',
-        email: ''
+        email: '',
+        password: ''
     });
     const [loginStatus, setLoginStatus] = useState({
         isLoggedIn: false,
         loginFailMessage: ''
     });
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const savedLoginStatus = window.sessionStorage.getItem('loginStatus');
-        if (savedLoginStatus) {
-            setLoginStatus(JSON.parse(savedLoginStatus));
-        }
-    }, []);
 
     const handleInputChange = (e, key) => {
         setLoginDetails({ ...loginDetails, [key]: e.value });
@@ -32,26 +25,29 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.get('/api/users');
-            const users = response.data;
-            const user = users.find(u => u.name === loginDetails.name && u.email === loginDetails.email);
-
-            if (user) {
+            const response = await axios.post('/api/users/login', loginDetails);
+            
+            if (response.data) {
                 const newLoginStatus = {
                     isLoggedIn: true,
                     loginFailMessage: ''
                 };
                 setLoginStatus(newLoginStatus);
-                window.sessionStorage.setItem('username', user.name);
+                window.sessionStorage.setItem('userId', response.data._id); 
+                window.sessionStorage.setItem('username', response.data.username); 
                 navigate('/main');
             } else {
                 setLoginStatus({
                     ...loginStatus,
-                    loginFailMessage: $L('Invalid name or email. Please try again.')
+                    loginFailMessage: $L('Invalid email or password. Please try again.')
                 });
             }
         } catch (error) {
             console.error('Login Error:', error);
+            setLoginStatus({
+                ...loginStatus,
+                loginFailMessage: $L('Login failed. Please try again.')
+            });
         }
     };
 
@@ -69,16 +65,16 @@ const LoginPage = () => {
                             )}
                             <br></br>
                             <InputField
-                                type="text"
-                                placeholder={$L("Name")}
-                                value={loginDetails.name}
-                                onChange={(e) => handleInputChange(e, 'name')}
-                            /><br /><br />
-                            <InputField
                                 type="email"
                                 placeholder={$L("Email")}
                                 value={loginDetails.email}
                                 onChange={(e) => handleInputChange(e, 'email')}
+                            /><br /><br />
+                            <InputField
+                                type="password"
+                                placeholder={$L("Password")}
+                                value={loginDetails.password}
+                                onChange={(e) => handleInputChange(e, 'password')}
                             /><br /><br />
                             <Button className={css.submitButton} onClick={handleLogin}>{$L('Login')}</Button>
                         </>

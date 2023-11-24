@@ -6,7 +6,7 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
 
 // Get all users
-//TODO: 보안문제(password)로 쓰면 안됨!! get all users 할일이 있을까...
+/*
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+*/
 
 //Login
 router.post('/login', isNotLoggedIn, async(req, res, next) => {
@@ -32,24 +32,7 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
         return res.status(401).send(info.reason);
       }
 
-      // 사용자 인증에 성공한 경우, req.login을 통해 세션에 사용자 정보 저장
-      req.login(user, async(loginErr) => {
-        if (loginErr) {
-          console.error(loginErr);
-          return next(loginErr);
-        }
-
-          try {
-              await updateAccessTimes(user);
-
-              const filteredUser = Object.assign({}, user.toJSON());
-              delete filteredUser.password; // 비밀번호 제외
-              return res.json(filteredUser);
-          } catch (error) {
-              console.error(error);
-              return res.status(500).json({ message: 'Internal Server Error' });
-          }
-      });
+      return login(req,res,next,user);
   })(req, res, next);
 });
 function getKoreanTime(){
@@ -65,6 +48,28 @@ function isSameDate(date1, date2) {
         dt1.getDate() === dt2.getDate()&&
         dt1.getHours()===dt2.getHours()
     );
+}
+
+function login(req,res,next,user){
+    // 사용자 인증에 성공한 경우, req.login을 통해 세션에 사용자 정보 저장
+    req.login(user, async(loginErr) => {
+        if (loginErr) {
+            console.error(loginErr);
+            return next(loginErr);
+        }
+
+        try {
+            await updateAccessTimes(user);
+
+            const filteredUser = Object.assign({}, user.toJSON());
+            delete filteredUser.password; // 비밀번호 제외
+            return res.json(filteredUser);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+
+    })
 }
 
 //Update accessTimes, lastRequestTime
@@ -93,12 +98,12 @@ router.get('/logout', isLoggedIn,  async(req, res) => {
     req.logout(function(err) {
         if (err) {
             console.error(err);
-            return res.status(500).json({ message: "Failed to log out" });
+            return res.status(500).json({ message: "로그아웃 오류가 발생했습니다." });
         }
         req.session.destroy(function(err) {
             if (err) {
                 console.error(err);
-                return res.status(500).json({ message: "Failed to destroy session" });
+                return res.status(500).json({ message: "세션 오류가 발생했습니다." });
             }
             res.end();
         });
@@ -106,13 +111,13 @@ router.get('/logout', isLoggedIn,  async(req, res) => {
 });
 
 // Create user
-router.post('/', isNotLoggedIn, async (req, res) => {
+router.post('/', isNotLoggedIn, async (req, res,next) => {
   const user = new User(req.body);
   user.accessTimes = Array(24).fill(0); //시간 배열 초기화
   user.lastRequestTime = Date.now();
   try {
     await user.save();
-    res.status(201).json(user);
+    return login(req,res,next,user);
   } catch (err) {
     if (err.code === 11000 && err.keyPattern && err.keyPattern.email === 1) {
       res.status(400).json({ message: "중복된 이메일입니다" });

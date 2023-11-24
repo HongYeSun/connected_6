@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/userRoutes');
+const videoRoutes=require('./routes/videoRoutes');
 
 const app = express();
-
 
 const port = process.env.PORT || 4000;
 const mongoURI = process.env.MONGO_URI || 'mongodb://0.0.0.0:27017/mydb';
@@ -40,4 +40,5 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/users', userRoutes);
+app.use('/api/videos', videoRoutes);
 app.listen(port, () => console.log(`Server listening on port ${port}`));

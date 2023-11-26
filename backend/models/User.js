@@ -14,7 +14,8 @@ const UserSchema = new mongoose.Schema({
   recentVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 최근에 본 비디오 (최대 20개)
   accessTimes: [{ type: Number }],  // 접속시간 (24시간 array)
   lastRequestTime: { type: Date, default: Date.now }
-});
+}, {
+  versionKey: false});
 
 // 비밀번호 암호화
 UserSchema.pre('save', async function (next) {
@@ -23,8 +24,7 @@ UserSchema.pre('save', async function (next) {
     if(user.isModified('password')) {
       const salt = await bcrypt.genSalt(10);
       this.password = await bcrypt.hash(this.password, salt);
-  //    console.log("bcrypt");
-      console.log(this.password);
+
       next();
     }
   } catch (error) {

@@ -21,7 +21,8 @@ app.use(express.json());
 
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
-// 세션 설정
+
+// 세션
 app.use(session({
     secret: process.env.SECRET,
     resave: false,

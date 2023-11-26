@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 //https://github.com/Hosang10Lee/opennotes/blob/%40sogang/termproject/Sample_Urls.md 기반
 
 //변수명은 해당 json 파일을 기준으로 함
@@ -14,8 +13,8 @@ const VideoSchema = new mongoose.Schema({
     like:  {type:Number,default:0,required:true}, //좋아요 한 수
     views: { type: Number, default: 0, required: true } // 조회수
 
-});
+}, {
+    versionKey: false});
 
 const Video = mongoose.model('Video', VideoSchema);
-
 module.exports = Video;

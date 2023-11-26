@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState } from 'react';
 import TabLayout, {Tab} from '@enact/sandstone/TabLayout';
 import {Header, Panel} from '@enact/sandstone/Panels';
@@ -8,11 +9,12 @@ import Video from './Video';
 import Account from './Account';
 import HLSVideo from './HLSVideo';
 import MyPlayer from './MyPlayer';
+import Feed from './Feed';
 
 const Main = (props) => {
 
 	const [profileImagePath, setProfileImagePath] = useState('');
-
+	const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
     useEffect(() => {
         // Retrieve the image path from session storage
         const imagePath = window.sessionStorage.getItem('profileImage');
@@ -41,8 +43,16 @@ const Main = (props) => {
 				<Tab title={$L('Home')}>
 					<Home />
 				</Tab>
+				<Tab title={$L('Feed')}>
+					<Feed
+						setVideosrc={setVideoPlayerSource}
+						videosrc={videoPlayerSource}
+					/>
+				</Tab>
 				<Tab title={$L('Video Player')}>
-					<Video src="http://media.w3.org/2010/05/sintel/trailer.mp4" />
+					<Video
+						src={videoPlayerSource}
+					/>
 				</Tab>
 				<Tab title={$L('HLS Video Player')}>
 					<HLSVideo src="https://cdn-vos-ppp-01.vos360.video/Content/HLS_HLSCLEAR/Live/channel(PPP-LL-2HLS)/index.m3u8" />

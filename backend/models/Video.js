@@ -11,8 +11,15 @@ const VideoSchema = new mongoose.Schema({
    // duration: { type: Number, required: true },
     bookmark: {type:Number,default:0,required:true}, //북마크 한 수
     like:  {type:Number,default:0,required:true}, //좋아요 한 수
-    views: { type: Number, default: 0, required: true } // 조회수
-
+    views: { type: Number, default: 0, required: true }, // 조회수
+    ageLikes: [
+        { type: Number, default: 0 }
+    ],
+    genderLikes: {
+        male: { type: Number, default: 0 },
+        female: { type: Number, default: 0 },
+        other: { type: Number, default: 0 }
+    }
 }, {
     versionKey: false});
 

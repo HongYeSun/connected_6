@@ -39,7 +39,12 @@ const passportConfig = require('./passport');
 passportConfig();
 app.use(passport.initialize());
 app.use(passport.session());
+const cron = require('node-cron');
 
+const { updatePopularVideo } = require('./routes/cron');
+cron.schedule('0 * * * *', async () => {
+    await updatePopularVideo();
+});
 app.use('/api/users', userRoutes);
 app.use('/api/videos', videoRoutes);
 app.listen(port, () => console.log(`Server listening on port ${port}`));

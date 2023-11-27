@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/userRoutes');
+const videoRoutes=require('./routes/videoRoutes');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
+
 // 세션 설정
 app.use(session({
     secret: process.env.SECRET,
@@ -38,6 +40,12 @@ const passportConfig = require('./passport');
 passportConfig();
 app.use(passport.initialize());
 app.use(passport.session());
+const cron = require('node-cron');
 
+const { updatePopularVideo } = require('./routes/cron');
+cron.schedule('0 * * * *', async () => {
+    await updatePopularVideo();
+});
 app.use('/api/users', userRoutes);
+app.use('/api/videos', videoRoutes);
 app.listen(port, () => console.log(`Server listening on port ${port}`));

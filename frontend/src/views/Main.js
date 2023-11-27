@@ -4,6 +4,7 @@ import TabLayout, { Tab } from '@enact/sandstone/TabLayout';
 import { Header, Panel } from '@enact/sandstone/Panels';
 import { Image } from '@enact/sandstone/Image';
 import { Icon } from '@enact/sandstone/Icon';
+import { Scroller } from '@enact/sandstone/Scroller';
 import $L from '@enact/i18n/$L';
 import Home from './Home';
 import Video from './Video';
@@ -67,14 +68,15 @@ const Main = (props) => {
 
     return (
         <div className={css.backGround}>
+            <Scroller>
             <Panel {...props}>
-                <Header className={css.Title} title={$L('WebOS Video Player')}>
+                <Header className={css.Title} title={$L('LG X Sogang Univ WebOS Video Player')}>
                     {profilePictureNumber && (
                         <Image
                             sizing="fill"
                             src={profileImageMap[profilePictureNumber]}
                             style={{
-                                border: '#ffa500 dashed 1px',
+                                border: '#ffa500 1px',
                                 width: '100px',
                                 height: '100px',
                                 borderRadius: '5px'
@@ -90,6 +92,7 @@ const Main = (props) => {
                     )}
                 </Header>
 			<br></br>
+            <Scroller>
             <TabLayout>
                     <Tab title={<><Icon>home</Icon> {$L('Home')}</>}>
                         <Home />
@@ -116,7 +119,9 @@ const Main = (props) => {
                         <Account />
                     </Tab>
             </TabLayout>
+            </Scroller>
         </Panel>
+        </Scroller>
 		</div>
     );
 };

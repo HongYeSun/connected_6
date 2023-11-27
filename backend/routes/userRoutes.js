@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
+const errorMessages = require('./errorMessages');
 
 
 // Get all users
@@ -178,6 +179,76 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/like', isLoggedIn, async (req, res) => {
+  try {
+      const userId = req.user._id;
 
+      const user = await User.findById(userId).populate('likedVideos');
+
+      if (!user) {
+          return res.status(404).json({ message: errorMessages.userNotFound });
+      }
+
+      const likedVideos = user.likedVideos; // 사용자가 좋아요한 비디오들
+      const videosInfo = [];
+
+      for (const video of likedVideos) {
+          const videoInfo = {
+              _id: video._id,
+              title: video.title,
+              subtitle: video.subtitle,
+              description: video.description,
+              thumb: video.thumb,
+              source: video.source,
+              bookmark: video.bookmark,
+              like: video.like,
+              views: video.views
+          };
+
+          videosInfo.push(videoInfo);
+      }
+
+      res.status(200).json(videosInfo);
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: errorMessages.serverError });
+  }
+});
+
+router.get('/bookmark', isLoggedIn, async (req, res) => {
+  try {
+      const userId = req.user._id;
+
+      const user = await User.findById(userId).populate('bookmarkedVideos');
+
+      if (!user) {
+          return res.status(404).json({ message: errorMessages.userNotFound });
+      }
+
+      const bookmarkedVideos = user.bookmarkedVideos; // 사용자가 좋아요한 비디오들
+      const videosInfo = [];
+
+      for (const video of bookmarkedVideos) {
+          const videoInfo = {
+              _id: video._id,
+              title: video.title,
+              subtitle: video.subtitle,
+              description: video.description,
+              thumb: video.thumb,
+              source: video.source,
+              bookmark: video.bookmark,
+              like: video.like,
+              views: video.views
+          };
+
+          videosInfo.push(videoInfo);
+      }
+
+      res.status(200).json(videosInfo);
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: errorMessages.serverError });
+  }
+});
 
 module.exports = router;

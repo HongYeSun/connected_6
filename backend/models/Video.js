@@ -24,4 +24,5 @@ const VideoSchema = new mongoose.Schema({
     versionKey: false});
 
 const Video = mongoose.model('Video', VideoSchema);
+
 module.exports = Video;

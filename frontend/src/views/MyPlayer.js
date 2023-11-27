@@ -1,81 +1,71 @@
-import Button from '@enact/sandstone/Button';
-import { InputField } from '@enact/sandstone/Input';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import $L from '@enact/i18n/$L';
+import { ImageItem } from '@enact/sandstone/ImageItem';
+import { Scroller } from '@enact/sandstone/Scroller';
+import { Icon } from '@enact/sandstone/Icon';
+import Video from './Video'; 
 
 const MyPlayer = () => {
-    const [loginDetails, setLoginDetails] = useState({
-        name: '',
-        email: ''
-    });
-    const [loginStatus, setLoginStatus] = useState({
-        isLoggedIn: false,
-        welcomeMessage: '',
-        loginFailMessage: ''
-    });
+    const [likedVideos, setLikedVideos] = useState([]);
+    const [bookmarkedVideos, setBookmarkedVideos] = useState([]);
+    const [recentVideos, setRecentVideos] = useState([]);
+    const [selectedVideo, setSelectedVideo] = useState(null);
 
     useEffect(() => {
-        // Check for saved login status in localStorage
-        const savedLoginStatus = window.sessionStorage.getItem('loginStatus');
-        if (savedLoginStatus) {
-            setLoginStatus(JSON.parse(savedLoginStatus));
+        const userId = window.sessionStorage.getItem('userId');
+        if (userId) {
+            axios.get(`/api/users/${userId}`)
+                .then(response => {
+                    const userData = response.data;
+                    setLikedVideos(userData.likedVideos);
+                    setBookmarkedVideos(userData.bookmarkedVideos);
+                    setRecentVideos(userData.recentVideos);
+                })
+                .catch(error => console.error('Error fetching user data:', error));
         }
     }, []);
 
-    const handleInputChange = (e, key) => {
-        setLoginDetails({ ...loginDetails, [key]: e.value });
-    };
-
-    const handleLogin = async () => {
-        try {
-            const response = await axios.get('/api/users');
-            const users = response.data;
-            const user = users.find(user => user.name === loginDetails.name && user.email === loginDetails.email);
-
-            if (user) {
-                const newLoginStatus =({
-                    isLoggedIn: true,
-                    welcomeMessage: $L(`Welcome ${user.name}!`),
-                    loginFailMessage: ''
-                });
-                setLoginStatus(newLoginStatus);
-                // Save login state to localStorage
-                window.sessionStorage.setItem('loginStatus', JSON.stringify(newLoginStatus));
-            } else {
-                setLoginStatus(prevState => ({
-                    ...prevState,
-                    loginFailMessage: $L('Invalid name or email. Please try again.') // Update the login failure message
-                }));
-            }
-        } catch (error) {
-            console.error('Login Error:', error);
-        }
+    const handleVideoSelect = (video) => {
+        setSelectedVideo(video);
     };
 
     return (
         <div>
-            {!loginStatus.isLoggedIn ? (
-                <>
-                    <h2>{$L('Login')}</h2>
-                    {loginStatus.loginFailMessage && <p>{loginStatus.loginFailMessage}</p>} {/* Display login failure message */}
-                    <InputField
-                        type="text"
-                        placeholder={$L("Name")}
-                        value={loginDetails.name}
-                        onChange={(e) => handleInputChange(e, 'name')}
-                    /><br /><br />
-                    <InputField
-                        type="email"
-                        placeholder={$L("Email")}
-                        value={loginDetails.email}
-                        onChange={(e) => handleInputChange(e, 'email')}
-                    /><br /><br />
-                    <Button onClick={handleLogin}>{$L('Login')}</Button>
-                </>
-            ) : (
-                <h2>{loginStatus.welcomeMessage}</h2>
+            <Scroller direction="vertical">
+                <h2><Icon>play</Icon> Recent Videos</h2>
+                {recentVideos.map(video => (
+                    <ImageItem
+                        key={video._id}
+                        src={video.thumb}
+                        onClick={() => handleVideoSelect(video)}
+                    >
+                        {video.title}
+                    </ImageItem>
+                ))}
+                <h2><Icon>heart</Icon> Liked Videos</h2>
+                {likedVideos.map(video => (
+                    <ImageItem
+                        key={video._id}
+                        src={video.thumb}
+                        onClick={() => handleVideoSelect(video)}
+                    >
+                        {video.title}
+                    </ImageItem>
+                ))}
+                <h2><Icon>check</Icon> Bookmarked Videos</h2>
+                {bookmarkedVideos.map(video => (
+                    <ImageItem
+                        key={video._id}
+                        src={video.thumb}
+                        onClick={() => handleVideoSelect(video)}
+                    >
+                        {video.title}
+                    </ImageItem>
+                ))}
                 
+            </Scroller>
+            {selectedVideo && (
+                <Video src={selectedVideo.source} />
             )}
         </div>
     );

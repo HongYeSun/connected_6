@@ -38,7 +38,12 @@ const ProfileSelectPage = () => {
             const response = await axios.put(`/api/users/${userId}`, { profilePicture: profileNumber });
             console.log(response.data);
 
-            navigate('/login'); 
+            await axios.post('/api/users/auto-login', { userId: userId })
+            .then(response => {
+                //window.sessionStorage.setItem('username', response.data.username); 
+                //window.sessionStorage.setItem('profilePictureNumber', response.data.profilePicture); 
+                navigate('/main');
+            });
         } catch (error) {
             console.error('Error updating profile image:', error);
         }

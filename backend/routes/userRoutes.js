@@ -251,4 +251,31 @@ router.get('/bookmark', isLoggedIn, async (req, res) => {
   }
 });
 
+// Auto-login 
+router.post('/auto-login', async (req, res) => {
+  try {
+      const { userId } = req.body;
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      req.login(user, loginErr => {
+          if (loginErr) {
+              console.error(loginErr);
+              return res.status(500).json({ message: 'Error logging in' });
+          }
+
+          const { password, ...userData } = user.toObject();
+          res.json(userData);
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 module.exports = router;

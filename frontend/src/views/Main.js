@@ -5,6 +5,7 @@ import { Header, Panel } from '@enact/sandstone/Panels';
 import { Image } from '@enact/sandstone/Image';
 import { Icon } from '@enact/sandstone/Icon';
 import { Scroller } from '@enact/sandstone/Scroller';
+import { Spinner } from '@enact/sandstone/Spinner';
 import $L from '@enact/i18n/$L';
 import Home from './Home';
 import Video from './Video';
@@ -34,6 +35,7 @@ const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');
     const [username, setUsername] = useState('');
     const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+    const [isLoading, setIsLoading] = useState(true);
 
     const profileImageMap = {
         1: profileImage1,
@@ -61,8 +63,14 @@ const Main = (props) => {
                     const userData = response.data;
                     setUsername(userData.username);
                     setProfilePictureNumber(userData.profilePicture);
+                    setIsLoading(false); 
                 })
-                .catch(error => console.error('Error fetching user data:', error));
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                    setIsLoading(false);
+                });
+        } else{
+            setIsLoading(false);
         }
     }, []);
 
@@ -71,18 +79,23 @@ const Main = (props) => {
             <Scroller>
             <Panel {...props}>
                 <Header className={css.Title} title={$L('LG X Sogang Univ WebOS Video Player')}>
-                    {profilePictureNumber && (
-                        <Image
-                            sizing="fill"
-                            src={profileImageMap[profilePictureNumber]}
-                            style={{
-                                border: '#ffa500 1px',
-                                width: '100px',
-                                height: '100px',
-                                borderRadius: '5px'
-                            }}
-                        />
+                <div className={css.profileImageContainer}>
+                    {isLoading ? (
+                        <Spinner size="small" className={css.centeredSpinner} />
+                    ) : (
+                        profilePictureNumber && (
+                            <Image
+                                sizing="fill"
+                                src={profileImageMap[profilePictureNumber]}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '5px'
+                                }}
+                            />
+                        )
                     )}
+                </div>
                     <br/><br/>
                     {username && (
                         <div className={css.welcomeMessage}>

@@ -3,11 +3,15 @@ import axios from 'axios';
 import TabLayout, { Tab } from '@enact/sandstone/TabLayout';
 import { Header, Panel } from '@enact/sandstone/Panels';
 import { Image } from '@enact/sandstone/Image';
+import { Icon } from '@enact/sandstone/Icon';
 import $L from '@enact/i18n/$L';
 import Home from './Home';
 import Video from './Video';
 import Account from './Account';
 import HLSVideo from './HLSVideo';
+import MyProfile from './MyProfile';
+import MyPlayer from './MyPlayer';
+import Feed from './Feed'; 
 import css from './Main.module.less';
 import profileImage1 from '../images/profile1.png';
 import profileImage2 from '../images/profile2.png';
@@ -28,6 +32,7 @@ import profileImage15 from '../images/profile15.png';
 const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');
     const [username, setUsername] = useState('');
+    const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
 
     const profileImageMap = {
         1: profileImage1,
@@ -70,29 +75,46 @@ const Main = (props) => {
                             src={profileImageMap[profilePictureNumber]}
                             style={{
                                 border: '#ffa500 dashed 1px',
-                                width: '75px',
+                                width: '100px',
                                 height: '100px',
                                 borderRadius: '5px'
                             }}
                         />
                     )}
                     <br/><br/>
-                    {username && <span className={css.welcomeMessage}>Welcome {username}!</span>}
+                    {username && (
+                        <div className={css.welcomeMessage}>
+                            <Icon size="small">profile</Icon>
+                            Welcome {username}!
+                        </div>
+                    )}
                 </Header>
 			<br></br>
             <TabLayout>
-                <Tab title={$L('Home')}>
-                    <Home />
-                </Tab>
-                <Tab title={$L('Video Player')}>
-                    <Video src="http://media.w3.org/2010/05/sintel/trailer.mp4" />
-                </Tab>
-                <Tab title={$L('HLS Video Player')}>
-                    <HLSVideo src="https://cdn-vos-ppp-01.vos360.video/Content/HLS_HLSCLEAR/Live/channel(PPP-LL-2HLS)/index.m3u8" />
-                </Tab>
-                <Tab title={$L('User List')}>
-                    <Account />
-                </Tab>
+                    <Tab title={<><Icon>home</Icon> {$L('Home')}</>}>
+                        <Home />
+                    </Tab>
+                    <Tab title={<><Icon>stargroup</Icon> {$L('Feed')}</>}>
+                        <Feed
+                            setVideosrc={setVideoPlayerSource}
+                            videosrc={videoPlayerSource}
+                        />
+                    </Tab>
+                    <Tab title={<><Icon>play</Icon> {$L('Video Player')}</>}>
+                        <Video src={videoPlayerSource} />
+                    </Tab>
+                    <Tab title={<><Icon>liverecord</Icon> {$L('HLS Video Player')}</>}>
+                        <HLSVideo src="https://cdn-vos-ppp-01.vos360.video/Content/HLS_HLSCLEAR/Live/channel(PPP-LL-2HLS)/index.m3u8" />
+                    </Tab>
+                    <Tab title={<><Icon>transponder</Icon> {$L('My Player')}</>}>
+                        <MyPlayer />
+                    </Tab>
+                    <Tab title={<><Icon>profilecheck</Icon> {$L('My Profile')}</>}>
+                        <MyProfile />
+                    </Tab>
+                    <Tab title={<><Icon>list</Icon> {$L('User List')}</>}>
+                        <Account />
+                    </Tab>
             </TabLayout>
         </Panel>
 		</div>

@@ -55,7 +55,7 @@ const ProfileSelectPage = () => {
                         src={image}
                         onClick={() => handleImageSelect(index+1)}
                         style={{
-                            width: '200px',
+                            width: '300px',
                             height: '300px',
                             //marginRight: '5px' 
                         }}

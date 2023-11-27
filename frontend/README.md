@@ -24,5 +24,3 @@ Enact system application template for new developers
 
 Please make an issue and let's talk.
 
-
-HIIIIIIIIHIIIIIIII

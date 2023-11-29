@@ -4,6 +4,7 @@ const User = require('../models/User');
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
+const {updateAccessTimes} =require('./screenTime');
 
 
 // Get all users
@@ -29,7 +30,7 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
       }
 
       if (info) {
-        console.error(info); //TODO: 배포시 주석처리
+        console.error(info);
         return res.status(401).send(info.reason);
       }
 
@@ -48,45 +49,12 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
               return res.json(filteredUser);
           } catch (error) {
               console.error(error);
-              return res.status(500).json({ message: 'Internal Server Error' });
+              return res.status(500).json({ message: errorMessages.serverError });
           }
       });
   })(req, res, next);
 });
-function getKoreanTime(){
-    const offset = 1000 * 60 * 60 * 9;
-    return new Date((new Date()).getTime() + offset);
-}
-function isSameDate(date1, date2) {
-    const dt1=new Date(date1);
-    const dt2=new Date(date2);
-    return (
-        dt1.getFullYear() === dt2.getFullYear() &&
-        dt1.getMonth() === dt2.getMonth() &&
-        dt1.getDate() === dt2.getDate()&&
-        dt1.getHours()===dt2.getHours()
-    );
-}
 
-//Update accessTimes, lastRequestTime
-async function updateAccessTimes(user) {
-    try {
-        const savedUser = await User.findById(user._id);
-        const lastRequestTime = savedUser.lastRequestTime;
-        const currentRequestTime = getKoreanTime();
-
-        if (!isSameDate(lastRequestTime, currentRequestTime)) {
-            const hour = new Date(currentRequestTime).getHours();
-            savedUser.accessTimes[hour]++;
-            await savedUser.save();
-        }
-        savedUser.lastRequestTime = currentRequestTime;
-        await savedUser.save();
-    } catch (error) {
-        console.error(error);
-        throw new Error('접속 시간 및 최근 요청 시간을 업데이트하는 데 실패했습니다.');
-    }
-}
 
 //Logout
 router.get('/logout', isLoggedIn,  async(req, res) => {
@@ -94,12 +62,12 @@ router.get('/logout', isLoggedIn,  async(req, res) => {
     req.logout(function(err) {
         if (err) {
             console.error(err);
-            return res.status(500).json({ message: "Failed to log out" });
+            return res.status(500).json({ message: errorMessages.logoutError });
         }
         req.session.destroy(function(err) {
             if (err) {
                 console.error(err);
-                return res.status(500).json({ message: "Failed to destroy session" });
+                return res.status(500).json({ message: errorMessages.sessionError });
             }
             res.end();
         });
@@ -110,13 +78,14 @@ router.get('/logout', isLoggedIn,  async(req, res) => {
 router.post('/', isNotLoggedIn, async (req, res) => {
   const user = new User(req.body);
   user.accessTimes = Array(24).fill(0); //시간 배열 초기화
+  user.todayAccessTimes = Array(24).fill(0);
   user.lastRequestTime = Date.now();
   try {
     await user.save();
     res.status(201).json(user);
   } catch (err) {
     if (err.code === 11000 && err.keyPattern && err.keyPattern.email === 1) {
-      res.status(400).json({ message: "중복된 이메일입니다" });
+      res.status(400).json({ message: errorMessages.duplicateEmail });
     } else {
       res.status(400).json({ message: err.message });
     }
@@ -129,7 +98,7 @@ router.put('/:id', async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: errorMessages.userNotFound});
     }
     res.json(user);
   } catch (err) {
@@ -143,7 +112,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: errorMessages.userNotFound });
     }
     res.sendStatus(204);
   } catch (err) {
@@ -151,25 +120,13 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
 
 // GET user by ID
 router.get('/:id', async (req, res) => {
   try {
       const user = await User.findById(req.params.id);
       if (!user) {
-          return res.status(404).send('User not found');
+          return res.status(404).send(errorMessages.userNotFound);
       }
       const { password, ...userData } = user.toObject();
       res.json(userData);
@@ -259,13 +216,13 @@ router.post('/auto-login', async (req, res) => {
       const user = await User.findById(userId);
 
       if (!user) {
-          return res.status(404).json({ message: 'User not found' });
+          return res.status(404).json({ message: errorMessages.userNotFound });
       }
 
       req.login(user, loginErr => {
           if (loginErr) {
               console.error(loginErr);
-              return res.status(500).json({ message: 'Error logging in' });
+              return res.status(500).json({ message: errorMessages.loginError });
           }
 
           const { password, ...userData } = user.toObject();
@@ -273,7 +230,7 @@ router.post('/auto-login', async (req, res) => {
       });
   } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: errorMessages.serverError });
   }
 });
 

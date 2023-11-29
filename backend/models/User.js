@@ -12,7 +12,8 @@ const UserSchema = new mongoose.Schema({
   likedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 좋아요한 비디오
   bookmarkedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 찜한 비디오
   recentVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 최근에 본 비디오 (최대 20개)
-  accessTimes: [{ type: Number }],  // 접속시간 (24시간 array)
+  accessTimes: [{ type: Number }],  // 총 스크린타임 (24시간 array)
+  todayAccessTimes:[{ type: Number }], //오늘 스크린타임
   lastRequestTime: { type: Date, default: Date.now }
 });
 
@@ -23,8 +24,6 @@ UserSchema.pre('save', async function (next) {
     if(user.isModified('password')) {
       const salt = await bcrypt.genSalt(10);
       this.password = await bcrypt.hash(this.password, salt);
-      console.log("bcrypt");
-      console.log(this.password);
       next();
     }
   } catch (error) {

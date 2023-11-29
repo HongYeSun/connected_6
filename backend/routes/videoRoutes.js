@@ -6,7 +6,7 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
 
 
-
+//TODO: 여기에도 updateTime 적용
 //좋아요 버튼
 router.post('/like/:videoId', isLoggedIn, async (req, res) => {
     try {
@@ -16,7 +16,7 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
         const video = await Video.findById(videoId);
         const user = await User.findById(userId);
         let ageIdx = Math.floor(user.age / 10);
-
+        let flag;
         if(ageIdx>7)
             ageIdx=7;
         const gender=await user.gender;
@@ -36,21 +36,23 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
             if(video.genderLikes[gender]>0)
                 video.genderLikes[gender]-=1;
             user.likedVideos = user.likedVideos.filter((id) => id.toString() !== videoId);
+            flag=false;
         } else {
             // 기존에 좋아요를 하지 않은 경우
             video.like += 1;
             video.ageLikes[ageIdx]+=1;
             video.genderLikes[gender]+=1;
             user.likedVideos.push(videoId);
+            flag=true;
         }
 
         await video.save();
         await user.save();
 
-        return res.status(200).json({ video, user });
+        return res.status(200).json({ flag, video, user });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: '에러가 발생했습니다.' });
+        return res.status(500).json({ message: errorMessages.error });
     }
 });
 
@@ -61,7 +63,7 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
 
         const video = await Video.findById(videoId);
         const user = await User.findById(userId);
-
+        let flag;
         // 비디오가 없는 경우
         if (!video) {
             return res.status(404).json({ message: errorMessages.videoNotFound });
@@ -71,16 +73,18 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
             if(video.bookmark>0)
                 video.bookmark -= 1;
             user.bookmarkedVideos = user.bookmarkedVideos.filter((id) => id.toString() !== videoId);
+            flag=false;
         } else {
             // 기존에 좋아요를 하지 않은 경우
             video.bookmark += 1;
             user.bookmarkedVideos.push(videoId);
+            flag=true;
         }
 
         await video.save();
         await user.save();
 
-        return res.status(200).json({ video, user });
+        return res.status(200).json({ flag,video, user });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.error });
@@ -134,9 +138,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-
-//1. 인기동영상을 요청 들어올때마다(좋아요 버튼 누르기 등) 업데이트 vs node-cron으로 12시간 주기로 업데이트
-// node-cron
 
 //2.
 //프론트: 현재 00초부터 재생(추후 논의)

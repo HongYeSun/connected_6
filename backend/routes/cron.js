@@ -35,7 +35,7 @@ const updatePopularVideo = async () => {
             popularVideo.byGender = genderGroups;
         }
         await popularVideo.save();
-        console.log(popularVideo);
+        console.log("Update popular videos");
     }catch (error) {
         console.error('Error generating popular videos:', error);
     }

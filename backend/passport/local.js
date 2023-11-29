@@ -2,6 +2,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { Strategy: LocalStrategy } = require('passport-local');
 const User = require('../models/User');
+const errorMessages = require('../routes/errorMessages');
 
 module.exports = () => {
     passport.use(
@@ -17,7 +18,7 @@ module.exports = () => {
                     );
                     if (!user) {
                         return done(null, false, {
-                            reason: '존재하지 않는 계정입니다.'
+                            reason: errorMessages.emailError
                         });
                     }
 
@@ -25,7 +26,7 @@ module.exports = () => {
 
                     if (result) return done(null, user);
                     else return done(null, false, {
-                        reason: "잘못된 비밀번호입니다."
+                        reason: errorMessages.passwordError
                     }
                     );
                 } catch (e) {

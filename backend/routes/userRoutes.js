@@ -8,11 +8,11 @@ const {updateAccessTimes} =require('./screenTime');
 
 
 // Get all users
-//TODO: 보안문제(password)로 쓰면 안됨!! get all users 할일이 있을까...
+// password 빼고 전달
 router.get('/', async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
+      const users = await User.find().select('-password');
+      res.json(users);
     // console.log(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -78,7 +78,7 @@ router.get('/logout', isLoggedIn,  async(req, res) => {
 router.post('/', isNotLoggedIn, async (req, res) => {
   const user = new User(req.body);
   user.accessTimes = Array(24).fill(0); //시간 배열 초기화
-  user.todayAccessTimes = Array(24).fill(0);
+  user.weekAccessTimes = Array(24).fill(0);
   user.lastRequestTime = Date.now();
   try {
     await user.save();
@@ -150,17 +150,8 @@ router.get('/like', isLoggedIn, async (req, res) => {
       const videosInfo = [];
 
       for (const video of likedVideos) {
-          const videoInfo = {
-              _id: video._id,
-              title: video.title,
-              subtitle: video.subtitle,
-              description: video.description,
-              thumb: video.thumb,
-              source: video.source,
-              bookmark: video.bookmark,
-              like: video.like,
-              views: video.views
-          };
+          const { _id, title, subtitle, description, thumb, source, bookmark, like, views } = video;
+          const videoInfo = { _id, title, subtitle, description, thumb, source, bookmark, like, views };
 
           videosInfo.push(videoInfo);
       }
@@ -182,22 +173,12 @@ router.get('/bookmark', isLoggedIn, async (req, res) => {
           return res.status(404).json({ message: errorMessages.userNotFound });
       }
 
-      const bookmarkedVideos = user.bookmarkedVideos; // 사용자가 좋아요한 비디오들
+      const bookmarkedVideos = user.bookmarkedVideos; // 사용자가 북마크한 비디오들
       const videosInfo = [];
 
       for (const video of bookmarkedVideos) {
-          const videoInfo = {
-              _id: video._id,
-              title: video.title,
-              subtitle: video.subtitle,
-              description: video.description,
-              thumb: video.thumb,
-              source: video.source,
-              bookmark: video.bookmark,
-              like: video.like,
-              views: video.views
-          };
-
+          const { _id, title, subtitle, description, thumb, source, bookmark, like, views } = video;
+          const videoInfo = { _id, title, subtitle, description, thumb, source, bookmark, like, views };
           videosInfo.push(videoInfo);
       }
 

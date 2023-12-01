@@ -40,10 +40,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 const cron = require('node-cron');
 
-const { updatePopularVideo } = require('./routes/cron');
+const { updatePopularVideo,resetWeekAccessTimes } = require('./routes/cron');
 cron.schedule('0 * * * *', async () => {
     await updatePopularVideo();
 });
+cron.schedule('0 0 * * 1',async()=>{
+    await resetWeekAccessTimes();
+})
+
 app.use('/api/users', userRoutes);
 app.use('/api/videos', videoRoutes);
 

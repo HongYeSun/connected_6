@@ -4,9 +4,9 @@ const Video = require('../models/Video');
 const User = require('../models/User');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
+const {updateAccessTimes} =require('./screenTime');
 
 
-//TODO: 여기에도 updateTime 적용
 //좋아요 버튼
 router.post('/like/:videoId', isLoggedIn, async (req, res) => {
     try {
@@ -45,11 +45,12 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
             user.likedVideos.push(videoId);
             flag=true;
         }
-
+        await updateAccessTimes(user);
         await video.save();
         await user.save();
+        const videoLike=video.like;
 
-        return res.status(200).json({ flag, video, user });
+        return res.status(200).json({ flag, videoLike });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.error });
@@ -80,24 +81,29 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
             user.bookmarkedVideos.push(videoId);
             flag=true;
         }
-
+        await updateAccessTimes(user);
         await video.save();
         await user.save();
+        const videoBookmark=video.bookmark;
 
-        return res.status(200).json({ flag,video, user });
+
+        return res.status(200).json({ flag,videoBookmark });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.error });
     }
 });
 
-//TODO: 이건 동영상 화면에 들어온거니까 최근 본 동영상 배열에 추가해야 함!
-router.get('/:videoId', async (req, res) => {
+//TODO: 최근 본 비디오 배열에 추가
+router.get('/:videoId', isLoggedIn,async (req, res) => {
     try {
         const { videoId } = req.params;
 
         const video = await Video.findById(videoId);
+        const userId = req.user._id; // 로그인한 사용자의 ID
+        const user = await User.findById(userId);
 
+        await updateAccessTimes(user);
         if (!video) {
             return res.status(404).json({ message: errorMessages.videoNotFound });
         }
@@ -129,6 +135,7 @@ router.post('/',  async (req, res) => {
 }
 });
 
+//Get all videos
 router.get('/', async (req, res) => {
     try {
         const videos = await Video.find();
@@ -142,15 +149,6 @@ router.get('/', async (req, res) => {
 //2.
 //프론트: 현재 00초부터 재생(추후 논의)
 
-
+//TODO: 앞으로 해야할거: 이어보기 구현
 module.exports = router;
 
-
-
-
-
-
-
-
-
-module.exports = router;

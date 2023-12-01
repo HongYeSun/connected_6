@@ -1,5 +1,6 @@
 const Video = require('../models/Video');
 const PopularVideo = require('../models/PopularVideo');
+const User = require("../models/User");
 // 매 시간마다 실행
 const updatePopularVideo = async () => {
     try {
@@ -41,6 +42,13 @@ const updatePopularVideo = async () => {
     }
 };
 
-//TODO: GENDER 작동 되는지 확인!!
+const resetWeekAccessTimes = async () => {
+    const users = await User.find();
+    for(const user of users){
+        user.weekAccessTimes=[];
+        user.weekAccessTimes = Array(24).fill(0);
+    }
 
-module.exports = { updatePopularVideo };
+};
+
+module.exports = { resetWeekAccessTimes,updatePopularVideo };

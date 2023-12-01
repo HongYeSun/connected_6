@@ -16,7 +16,7 @@ function isSameDate(date1, date2) {
     );
 }
 
-//Update accessTimes, lastRequestTime, todayAccessTimes
+//Update accessTimes, lastRequestTime, weekAccessTimes
 async function updateAccessTimes(user) {
     try {
         const savedUser = await User.findById(user._id);
@@ -26,6 +26,7 @@ async function updateAccessTimes(user) {
         if (!isSameDate(lastRequestTime, currentRequestTime)) {
             const hour = new Date(currentRequestTime).getHours();
             savedUser.accessTimes[hour]++;
+            savedUser.weekAccessTimes[hour]++;
             await savedUser.save();
         }
         savedUser.lastRequestTime = currentRequestTime;
@@ -36,4 +37,4 @@ async function updateAccessTimes(user) {
     }
 }
 
-module.exports = { getKoreanTime,updateAccessTimes };
+module.exports = { updateAccessTimes };

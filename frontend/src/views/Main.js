@@ -36,6 +36,7 @@ const Main = (props) => {
     const [username, setUsername] = useState('');
     const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
     const [isLoading, setIsLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState(0);
 
     const profileImageMap = {
         1: profileImage1,
@@ -74,6 +75,25 @@ const Main = (props) => {
         }
     }, []);
 
+    const handleSelectVideo = (videoId, videoSource) => {
+        //setVideoPlayerSource(videoSource);
+        onSelectVideo(videoId, videoSource);
+        setActiveTab(2); // Video player: TabLayout index = 2
+    };
+
+    const onSelectVideo = async (videoId, videoSource) => {
+        setVideoPlayerSource(videoSource);
+        
+        const userId = window.sessionStorage.getItem('userId');
+        if (userId) {
+            try {
+                await axios.post(`/api/users/${userId}/recent-videos`, { videoId });
+            } catch (error) {
+                console.error('Error updating recent videos:', error);
+            }
+        }
+    };
+
     return (
         <div className={css.backGround}>
             <Scroller>
@@ -106,15 +126,12 @@ const Main = (props) => {
                 </Header>
 			<br></br>
             <Scroller>
-            <TabLayout>
+            <TabLayout index={activeTab} onSelect={({index}) => setActiveTab(index)}>
                     <Tab title={<><Icon>home</Icon> {$L('Home')}</>}>
-                        <Home />
+                        <Home onSelectVideo={handleSelectVideo}/>
                     </Tab>
                     <Tab title={<><Icon>stargroup</Icon> {$L('Feed')}</>}>
-                        <Feed
-                            setVideosrc={setVideoPlayerSource}
-                            videosrc={videoPlayerSource}
-                        />
+                        <Feed onSelectVideo={handleSelectVideo}/>
                     </Tab>
                     <Tab title={<><Icon>play</Icon> {$L('Video Player')}</>}>
                         <Video src={videoPlayerSource} />
@@ -123,7 +140,7 @@ const Main = (props) => {
                         <HLSVideo src="https://cdn-vos-ppp-01.vos360.video/Content/HLS_HLSCLEAR/Live/channel(PPP-LL-2HLS)/index.m3u8" />
                     </Tab>
                     <Tab title={<><Icon>transponder</Icon> {$L('My Player')}</>}>
-                        <MyPlayer />
+                        <MyPlayer onSelectVideo={handleSelectVideo}/>
                     </Tab>
                     <Tab title={<><Icon>profilecheck</Icon> {$L('My Profile')}</>}>
                         <MyProfile />

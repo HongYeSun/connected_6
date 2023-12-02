@@ -10,6 +10,7 @@ import Account from './Account';
 import HLSVideo from './HLSVideo';
 import MyPlayer from './MyPlayer';
 import Feed from './Feed';
+import Status from './Status';
 
 const Main = (props) => {
 
@@ -54,6 +55,9 @@ const Main = (props) => {
 				</Tab>
 				<Tab title={$L('My Home')}>
 					<MyPlayer />
+				</Tab>
+				<Tab title={$L('Status')}>
+					<Status />
 				</Tab>
 				<Tab title={$L('Register')}>
 					<Account />

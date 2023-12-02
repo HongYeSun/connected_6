@@ -5,7 +5,7 @@ import Panels from '@enact/sandstone/Panels';
 import Main from '../views/Main';
 import Feed from '../views/Feed';
 import Media from '../views/Media';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { useBackHandler, useCloseHandler, useDocumentEvent } from './AppState';
 import { isDevServe } from '../libs/utils';
 

@@ -6,3 +6,7 @@ export const getSystemInfo = params =>
 
 const sam = request('luna://com.webos.applicationManager');
 export const launch = parameters => sam({method: 'launch', parameters});
+
+const mem = request('luna://com.webos.service.sdkagent/collector');
+export const getStat = params =>
+	mem({method: 'getData', ...params});

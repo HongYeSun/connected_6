@@ -23,5 +23,13 @@
 	"useCamera": false,
 	"useGraphicCamera": false,
 	"useNativeScroll": true,
-	"visible": true
+	"visible": true,
+	"requiredPermissions": [
+		"time.query",
+		"activity.operation",
+		"notification.operation",
+		"memorymanager.query",
+		"memorymanger.management",
+		"sdkagent.collector"
+	  ]
 }

@@ -11,8 +11,8 @@ const Status = () => {
     const [data2, setMem] = useMem({returnValue: false});
 
     useEffect(() => {
-        setMem();
         setCpu();
+        setMem();
     }, []);
 	return (
 		<>
@@ -20,8 +20,8 @@ const Status = () => {
             <BodyText>{`Cpu status : ${JSON.stringify(data1)}`}</BodyText>
             <BodyText>{`Mem status : ${JSON.stringify(data2)}`}</BodyText>
 			{ <Button onClick={() => {
-                setMem();
                 setCpu();
+                setMem();
             }} size="small" className={css.buttonCell}>
 				{$L('Refresh')}
 			</Button> }

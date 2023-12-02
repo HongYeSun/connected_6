@@ -62,8 +62,6 @@ export const useMem = () => {
         	};
         	webOSBridge.send(lsRequest);
     	}]
-
-     
 }
 
 export const useCpu = () => {
@@ -72,22 +70,22 @@ export const useCpu = () => {
         "inputs": ["cpu"]
     }
 
-    useEffect(() => {
-        var lsRequest = {
-            "service":"luna://com.webos.service.sdkagent/collector",
-            "method":"getData",
-            "parameters": parms,
-            "onSuccess": res => {
-                setValue(res);
-            },
-            "onFailure": res => {
-                setValue("error")
-            }
-        };
-        webOSBridge.send(lsRequest);
-    }, []);
-
-    return value;
+	return [
+		value,
+    	event =>  {
+        	var lsRequest = {
+            	"service":"luna://com.webos.service.sdkagent/collector",
+            	"method":"getData",
+            	"parameters": parms,
+            	"onSuccess": res => {
+                	setValue(res);
+            	},
+            	"onFailure": res => {
+                	setValue("error")
+            	}
+        	};
+        	webOSBridge.send(lsRequest);
+    	}]
 }
 
 // export const useStat = () => {

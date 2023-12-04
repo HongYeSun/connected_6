@@ -48,7 +48,7 @@ const resetWeekAccessTimes = async () => {
         user.weekAccessTimes=[];
         user.weekAccessTimes = Array(24).fill(0);
     }
-
+    console.log("Reset week access time");
 };
 
 module.exports = { resetWeekAccessTimes,updatePopularVideo };

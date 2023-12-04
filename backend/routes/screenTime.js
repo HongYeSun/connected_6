@@ -37,4 +37,4 @@ async function updateAccessTimes(user) {
     }
 }
 
-module.exports = { updateAccessTimes };
+module.exports = { getKoreanTime,updateAccessTimes };

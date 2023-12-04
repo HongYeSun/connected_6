@@ -42,7 +42,7 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
             video.like += 1;
             video.ageLikes[ageIdx]+=1;
             video.genderLikes[gender]+=1;
-            user.likedVideos.push(videoId);
+            user.likedVideos.unshift(videoId);
             flag=true;
         }
         await updateAccessTimes(user);
@@ -78,7 +78,8 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
         } else {
             // 기존에 좋아요를 하지 않은 경우
             video.bookmark += 1;
-            user.bookmarkedVideos.push(videoId);
+            user.bookmarkedVideos.unshift(videoId);
+
             flag=true;
         }
         await updateAccessTimes(user);
@@ -94,7 +95,7 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
     }
 });
 
-//TODO: 최근 본 비디오 배열에 추가
+
 router.get('/:videoId', isLoggedIn,async (req, res) => {
     try {
         const { videoId } = req.params;
@@ -103,11 +104,19 @@ router.get('/:videoId', isLoggedIn,async (req, res) => {
         const userId = req.user._id; // 로그인한 사용자의 ID
         const user = await User.findById(userId);
 
-        await updateAccessTimes(user);
+
         if (!video) {
             return res.status(404).json({ message: errorMessages.videoNotFound });
         }
-
+        //만약 최근 본 비디오에 있으면 제거
+        user.recentVideos = user.recentVideos.filter((id) => id.toString() !== videoId);
+        //맨 앞으로 추가
+        user.recentVideos.unshift(videoId);
+        if(user.recentVideos.length>10){ //최대 10개만 저장
+            user.recentVideos.length=10;
+        }
+        await updateAccessTimes(user);
+        await user.save();
         return res.status(200).json({ video });
     } catch (error) {
         console.error(error);

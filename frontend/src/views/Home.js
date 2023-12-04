@@ -38,6 +38,17 @@ const Home = ({ onSelectVideo }) => {
     }
 
     return (
+        <div
+            style={{
+                height: '70vh',
+                transform: 'scale(1)',
+                transformOrigin: 'top',
+                width: '100vw',
+                display: 'flex',
+                justifyContent: 'center',
+                margin: '0 auto'
+            }}
+        >
         <Scroller direction="vertical">
             {videos.map((video, index) => (
                 <ImageItem
@@ -52,6 +63,7 @@ const Home = ({ onSelectVideo }) => {
                 </ImageItem>
             ))}
         </Scroller>
+        </div>
     );
 };
 

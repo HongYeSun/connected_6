@@ -239,11 +239,11 @@ const MyProfile = () => {
                     display: 'flex', 
                     justifyContent: 'center', 
                     alignItems: 'center', 
-                    height: '60vh' 
+                    height: '40vh' 
                 }}>
                     <div style={{ 
-                        height: '600px', 
-                        width: '600px'  
+                        height: '500px', 
+                        width: '500px'  
                     }}>
                         <ScreenTimeResponsivePie data={pieData} />
                     </div>

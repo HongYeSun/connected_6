@@ -35,6 +35,8 @@ const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');
     const [username, setUsername] = useState('');
     const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+    const [videoID, setVideoID] = useState("656e09c27488b22852d5b6b3");
+    const [videoStamp, setVideoStamp] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(0);
 
@@ -77,6 +79,7 @@ const Main = (props) => {
 
     const handleSelectVideo = (videoId, videoSource) => {
         //setVideoPlayerSource(videoSource);
+        setVideoID(videoId);
         onSelectVideo(videoId, videoSource);
         setActiveTab(2); // Video player: TabLayout index = 2
     };
@@ -134,7 +137,13 @@ const Main = (props) => {
                         <Feed onSelectVideo={handleSelectVideo}/>
                     </Tab>
                     <Tab title={<><Icon>play</Icon> {$L('Video Player')}</>}>
-                        <Video src={videoPlayerSource} />
+                        <Video
+                            src={videoPlayerSource}
+                            id={videoID}
+                            videoStamp={videoStamp}
+                            setActiveTab={setActiveTab}
+                            setVideoStamp={setVideoStamp}
+                        />
                     </Tab>
                     <Tab title={<><Icon>liverecord</Icon> {$L('HLS Video Player')}</>}>
                         <HLSVideo src="https://cdn-vos-ppp-01.vos360.video/Content/HLS_HLSCLEAR/Live/channel(PPP-LL-2HLS)/index.m3u8" />

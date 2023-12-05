@@ -22,7 +22,7 @@ const Video = (prop) => {
 		source: "",
 		bookmark: 0,
 		views: 0,
-		like: 0, //
+		like: 0,
 		genderLikes: { male: 0, female: 0, other: 0 }
 	});
 
@@ -97,6 +97,15 @@ const Video = (prop) => {
 		videoRef.current.seek(prop.videoStamp);
 	};
 
+	const toggleFullScreen = () => {
+		const element = document.getElementById('myvideo');
+		const isFullScreen = document.fullscreenElement;
+		if (isFullScreen) {
+			document.exitFullscreen();
+		} else {
+			element.requestFullscreen();
+		}
+	};
 	if (loading) {
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -118,6 +127,7 @@ const Video = (prop) => {
 			}}
 		>
 			<VideoPlayer
+				id='myvideo'
 				noAutoPlay={true}
 				ref={videoRef}
 				autoCloseTimeout={5000}
@@ -144,6 +154,18 @@ const Video = (prop) => {
 					pauseIcon="pause"
 					playIcon="play"
 				>
+					<Alert type="overlay" open={isLikePopupOpen} onClose={handleLikePopupClose}>
+						<span>{alertMessage}</span>
+						<buttons>
+							<Button
+								size="small"
+								className={css.buttonCell}
+								onClick={handleLikePopupClose}
+							>
+								{('OK')}
+							</Button>
+						</buttons>
+					</Alert>
 					<Button
 						icon="list"
 						size="small"
@@ -160,18 +182,11 @@ const Video = (prop) => {
 						size="small"
 						onClick={() => handlePopupOpen('heart')}
 					/>
-					<Alert type="overlay" open={isLikePopupOpen} onClose={handleLikePopupClose}>
-						<span>{alertMessage}</span>
-						<buttons>
-							<Button
-								size="small"
-								className={css.buttonCell}
-								onClick={handleLikePopupClose}
-							>
-								{('OK')}
-							</Button>
-						</buttons>
-					</Alert>
+					<Button
+						icon="fullscreen"
+						size="small"
+						onClick={toggleFullScreen}
+					/>
 					<Alert type="overlay" open={isBookmarkPopupOpen} onClose={handleBookmarkPopupClose}>
 						<span>{alertMessage}</span>
 						<buttons>

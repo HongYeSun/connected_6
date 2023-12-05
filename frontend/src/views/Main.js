@@ -5,7 +5,6 @@ import { Header, Panel } from '@enact/sandstone/Panels';
 import { Image } from '@enact/sandstone/Image'
 import $L from '@enact/i18n/$L';
 import Home from './Home';
-import Media from './Media';
 import Account from './Account';
 import HLSVideo from './HLSVideo';
 import MyPlayer from './MyPlayer';

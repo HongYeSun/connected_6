@@ -78,15 +78,15 @@ const SysResponsivePie = ({ data }) => (
             },
             {
                 match: {
-                    id: 'system'
-                },
-                id: 'lines'
-            },
-            {
-                match: {
                     id: 'user'
                 },
                 id: 'dots'
+            },
+            {
+                match: {
+                    id: 'system'
+                },
+                id: 'lines'
             },
             {
                 match: {
@@ -118,9 +118,9 @@ const SysResponsivePie = ({ data }) => (
                 anchor: 'bottom',
                 direction: 'row',
                 justify: false,
-                translateX: 0,
+                translateX: 20,
                 translateY: 56,
-                itemsSpacing: 30,
+                itemsSpacing: 70,
                 itemWidth: 100,
                 itemHeight: 18,
                 itemTextColor: '#999',
@@ -164,7 +164,7 @@ const Status = () => {
             {
                 "id": "available",
                 "label": "available",
-                "value": 100,
+                "value": 0,
                 "color": "hsl(218, 70%, 50%)"
             },
             {
@@ -180,25 +180,25 @@ const Status = () => {
             {
                 "id": "idle",
                 "label": "idle",
-                "value": 80,
+                "value": 0,
                 "color": "hsl(354, 70%, 50%)"
             },
             {
                 "id": "system",
                 "label": "system",
-                "value": 10,
+                "value": 0,
                 "color": "hsl(255, 70%, 50%)"
             },
             {
                 "id": "user",
                 "label": "user",
-                "value": 5,
+                "value": 0,
                 "color": "hsl(247, 70%, 50%)"
             },
             {
                 "id": "irq",
                 "label": "irq",
-                "value": 5,
+                "value": 0,
                 "color": "hsl(253, 70%, 50%)"
             }
         ]
@@ -217,19 +217,31 @@ const Status = () => {
         if (data_cpu.returnValue) {
             for (let [id, CPU] of Object.entries(data_cpu.dataArray)) {
                 if (CPU.cpu.cpu == "cpu-total") {
-                    const _idle = parseFloat(CPU.cpu.data.usage_idle).toFixed(2);
-                    const _irq = parseFloat(CPU.cpu.data.usage_softirq).toFixed(2);
-                    const _user = parseFloat(CPU.cpu.data.usage_user).toFixed(2);
-                    const _system = parseFloat(CPU.cpu.data.usage_system).toFixed(2);
                     setParsedData({
                         ...parsedData,
-                        idle: _idle,
-                        irq:_irq,
-                        user: _user,
-                        system: _system
+                        idle: parseFloat(CPU.cpu.data.usage_idle).toFixed(2),
+                        irq: parseFloat(CPU.cpu.data.usage_softirq).toFixed(2),
+                        user: parseFloat(CPU.cpu.data.usage_user).toFixed(2),
+                        system: parseFloat(CPU.cpu.data.usage_system).toFixed(2)
                     });
                 }
             }
+        }
+    }, [data_cpu]);
+
+    useEffect(() => {
+        if (data_mem.returnValue) {
+            setParsedData({
+                ...parsedData,
+                level: data_mem.system.level,
+                available: data_mem.system.available,
+                total: data_mem.system.total
+            });
+        }
+    }, [data_mem]);
+
+    useEffect(() => {
+        if (parsedData.total) {
             setCpuPie([
                 {
                     "id": "idle",
@@ -257,16 +269,8 @@ const Status = () => {
                 }
             ]);
         }
-    }, [data_cpu]);
 
-    useEffect(() => {
-        if (data_mem.returnValue) {
-            setParsedData({
-                ...parsedData,
-                level: data_mem.system.level,
-                available: data_mem.system.available,
-                total: data_mem.system.total
-            });
+        if (parsedData.available) {
             const used = parsedData.total - parsedData.available;
             setMemPie([
                 {
@@ -283,37 +287,41 @@ const Status = () => {
                 }
             ]);
         }
-    }, [data_mem]);
+
+    }, [parsedData]);
 
     return (
         <Scroller direction="verticle">
             <BodyText>{$L('This is a page for system status.')}</BodyText>
+            {<Button onClick={setData} size="small" className={css.buttonCell}>
+                    {$L('Refresh')}
+                </Button>}
             {/* <BodyText>{`Cpu status : ${JSON.stringify(data_cpu)}`}</BodyText>
             <BodyText>{`Mem status: ${JSON.stringify(data_mem)}`}</BodyText> */}
             <div style={{
                 position: "absolute",
-                top: '40px',
-                left: '80px',
+                top: '150px',
+                left: '0px',
                 height: '600px',
-                width: '600px'
+                width: '700px'
             }}>
                 <SysResponsivePie data={MemPieData}
                 />
             </div>
             <div style={{
                 position: "absolute",
-                top: '40px',
-                left: '700px',
+                top: '150px',
+                left: '600px',
                 height: '600px',
-                width: '600px'
+                width: '700px'
             }}>
                 <SysResponsivePie data={CpuPieData}
                 />
             </div>
             <div style={{
                 position: "absolute",
-                top: '700px',
-                left: '40px'
+                top: '800px',
+                left: '180px'
             }}>
                 <BodyText>{`Mem_level: ${parsedData.level}`}</BodyText>
                 <BodyText>{`Mem_available: ${parsedData.available}`}</BodyText>
@@ -321,22 +329,13 @@ const Status = () => {
             </div>
             <div style={{
                 position: "absolute",
-                top: '700px',
-                left: '700px'
+                top: '800px',
+                left: '800px'
             }}>
                 <BodyText>{`Cpu_idle: ${parsedData.idle}`}</BodyText>
-                <BodyText>{`Cpu_irq: ${parsedData.irq}`}</BodyText>
                 <BodyText>{`Cpu_user: ${parsedData.user}`}</BodyText>
+                <BodyText>{`Cpu_irq: ${parsedData.irq}`}</BodyText>
                 <BodyText>{`Cpu_system: ${parsedData.system}`}</BodyText>
-            </div>
-            <div style={{
-                position: "absolute",
-                top: '600px',
-                left: '1300px'
-            }}>
-                {<Button onClick={setData} size="small" className={css.buttonCell}>
-                    {$L('Refresh')}
-                </Button>}
             </div>
         </Scroller>
     );

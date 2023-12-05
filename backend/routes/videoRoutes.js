@@ -141,15 +141,16 @@ router.get('/', async (req, res) => {
 //2.
 //프론트: 현재 00초부터 재생(추후 논의)
 
-
-module.exports = router;
-
-
-
-
-
-
-
+router.post('/fetch-videos', async (req, res) => {
+    try {
+      const videoIds = req.body.videoIds;
+      const videos = await Video.find({ '_id': { $in: videoIds } });
+      res.json(videos);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 
 module.exports = router;

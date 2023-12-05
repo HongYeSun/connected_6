@@ -14,12 +14,7 @@ const VideoSchema = new mongoose.Schema({
     views: { type: Number, default: 0, required: true }, // 조회수
     ageLikes: [
         { type: Number, default: 0 }
-    ],
-    genderLikes: {
-        male: { type: Number, default: 0 },
-        female: { type: Number, default: 0 },
-        other: { type: Number, default: 0 }
-    }
+    ]
 }, {
     versionKey: false});
 

@@ -276,6 +276,40 @@ router.post('/auto-login', async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
   }
 });
+// routes/userRoutes.js
+
+router.post('/:userId/recent-videos', isLoggedIn, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { videoId } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // 비디오 중복시 제거
+    const existingIndex = user.recentVideos.indexOf(videoId);
+    if (existingIndex > -1) {
+      user.recentVideos.splice(existingIndex, 1);
+    }
+
+    // 최근 비디오가 가장 앞으로 오게
+    user.recentVideos.unshift(videoId);
+
+    // recent video가 20개 이상인 경우 handle
+    if (user.recentVideos.length > 20) {
+      user.recentVideos.pop();
+    }
+
+    await user.save();
+
+    res.status(200).json({ recentVideos: user.recentVideos });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
 module.exports = router;

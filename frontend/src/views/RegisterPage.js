@@ -88,14 +88,14 @@ const RegisterPage = () => {
                     /><br /><br />
                     <h3>{$L('Gender')}</h3>
                     <RadioItem
-                        selected={userDetails.gender === 'f'}
-                        onToggle={() => handleGenderChange({ data: 'f' })}
+                        selected={userDetails.gender === 'female'}
+                        onToggle={() => handleGenderChange({ data: 'female' })}
                     >
                         {$L('Female')}
                     </RadioItem>
                     <RadioItem
-                        selected={userDetails.gender === 'm'}
-                        onToggle={() => handleGenderChange({ data: 'm' })}
+                        selected={userDetails.gender === 'male'}
+                        onToggle={() => handleGenderChange({ data: 'male' })}
                     >
                         {$L('Male')}
                     </RadioItem>

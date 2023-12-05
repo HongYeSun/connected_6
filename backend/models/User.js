@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, match: /^\S+@\S+\.\S+$/ },
   password: { type: String, required: true, maxlength: 100 },
   profilePicture: {type:Number, min:1, max:15 , required: true}, //1~15
-  gender: { type: String, enum: ['f', 'm', 'other'] , required: true},
+  gender: { type: String, enum: ['female', 'male', 'other'] , required: true},
   age: { type: Number, min: 0 , required: true},
   likedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 좋아요한 비디오
   bookmarkedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 찜한 비디오

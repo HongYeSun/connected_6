@@ -5,7 +5,8 @@ import Main from '../views/Main';
 import RegisterPage from '../views/RegisterPage';   
 import ProfileSelectPage from '../views/ProfileSelectPage'; 
 import LoginPage from '../views/LoginPage'; 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; 
+import Video from '../views/Video';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'; 
 import { useBackHandler, useCloseHandler, useDocumentEvent } from './AppState';
 import { isDevServe } from '../libs/utils';
 
@@ -25,6 +26,7 @@ const App = props => {
     const handleBack = useBackHandler();
     const handleClose = useCloseHandler();
     useDocumentEvent(setSkinVariants);
+    const [currentVideoSrc, setCurrentVideoSrc] = useState('');
 
     return (
             <Router>
@@ -34,9 +36,10 @@ const App = props => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/main" element={
                         <Panels skinVariants={skinVariants} onBack={handleBack} onClose={handleClose}>
-                        	<Main />
+                        	<Main setVideosrc={setCurrentVideoSrc} videosrc={currentVideoSrc} />
                     	</Panels>
                     } />
+                    <Route path="/video/:source" element={<Video />} />
                 </Routes>
             </Router>
     );

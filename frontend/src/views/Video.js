@@ -22,7 +22,7 @@ const Video = (prop) => {
 		source: "",
 		bookmark: 0,
 		views: 0,
-		like: 0,
+		like: 0, //
 		genderLikes: { male: 0, female: 0, other: 0 }
 	});
 

@@ -35,7 +35,7 @@ const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');
     const [username, setUsername] = useState('');
     const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-    const [videoID, setVideoID] = useState("656e09c27488b22852d5b6b3");
+    const [videoID, setVideoID] = useState("");
     const [videoStamp, setVideoStamp] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(0);

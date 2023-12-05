@@ -37,6 +37,17 @@ const Feed = ({ onSelectVideo }) => {
     }
 
     return (
+        <div
+            style={{
+                height: '70vh',
+                transform: 'scale(1)',
+                transformOrigin: 'top',
+                width: '90vw',
+                display: 'flex',
+                justifyContent: 'center',
+                margin: '0 auto'
+            }}
+        >
         <Scroller direction="vertical">
             {videos.map((video, index) => (
                 <ImageItem
@@ -45,12 +56,13 @@ const Feed = ({ onSelectVideo }) => {
                     label={video.subtitle}
                     src={video.thumb}
                     onClick={() => handleClickEvent(video.source)}
-                    style={{ height: 190, width: 229.33333333333331 }}
+                    style={{ height: 300, width: 360 }}
                 >
                     {video.title}
                 </ImageItem>
             ))}
-        </Scroller>
+            </Scroller>
+        </div>
     );
 };
 

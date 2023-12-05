@@ -106,6 +106,9 @@ const Video = (prop) => {
 			element.requestFullscreen();
 		}
 	};
+	const setPlayBack = () => {
+		videoRef.current.fastForward();
+	};
 	if (loading) {
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -130,12 +133,13 @@ const Video = (prop) => {
 				id='myvideo'
 				noAutoPlay={true}
 				ref={videoRef}
-				autoCloseTimeout={5000}
+				autoCloseTimeout={3000}
 				backButtonAriaLabel="go to previous"
 				feedbackHideDelay={3000}
 				// initialJumpDelay={400}
 				jumpDelay={200}
 				loop
+				playbackRateHash={{ fastForward: ['1.25', '1.5', '1.75', '2','0.5','0.75']}}
 				miniFeedbackHideDelay={2000}
 				title={videoInfo.video.title}
 				thumbnailSrc={videoInfo.video.thumb}
@@ -171,7 +175,11 @@ const Video = (prop) => {
 						size="small"
 						onClick={handleBackButtonClick}
 					/>
-					<Button icon="playspeed" size="small" />
+					<Button
+						icon="playspeed"
+						size="small"
+						onClick={setPlayBack}
+					/>
 					<Button
 						icon="star"
 						size="small"

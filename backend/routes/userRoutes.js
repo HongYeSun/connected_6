@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Video=require('../models/Video');
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
 
+const {getKoreanTime,updateAccessTimes} =require('./screenTime');
+const PopularVideo = require("../models/PopularVideo");
 
 // Get all users
 //TODO: 보안문제(password)로 쓰면 안됨!! get all users 할일이 있을까...
@@ -53,40 +56,6 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
       });
   })(req, res, next);
 });
-function getKoreanTime(){
-    const offset = 1000 * 60 * 60 * 9;
-    return new Date((new Date()).getTime() + offset);
-}
-function isSameDate(date1, date2) {
-    const dt1=new Date(date1);
-    const dt2=new Date(date2);
-    return (
-        dt1.getFullYear() === dt2.getFullYear() &&
-        dt1.getMonth() === dt2.getMonth() &&
-        dt1.getDate() === dt2.getDate()&&
-        dt1.getHours()===dt2.getHours()
-    );
-}
-
-//Update accessTimes, lastRequestTime
-async function updateAccessTimes(user) {
-    try {
-        const savedUser = await User.findById(user._id);
-        const lastRequestTime = savedUser.lastRequestTime;
-        const currentRequestTime = getKoreanTime();
-
-        if (!isSameDate(lastRequestTime, currentRequestTime)) {
-            const hour = new Date(currentRequestTime).getHours();
-            savedUser.accessTimes[hour]++;
-            await savedUser.save();
-        }
-        savedUser.lastRequestTime = currentRequestTime;
-        await savedUser.save();
-    } catch (error) {
-        console.error(error);
-        throw new Error('접속 시간 및 최근 요청 시간을 업데이트하는 데 실패했습니다.');
-    }
-}
 
 //Logout
 router.get('/logout', isLoggedIn,  async(req, res) => {
@@ -110,16 +79,21 @@ router.get('/logout', isLoggedIn,  async(req, res) => {
 router.post('/', isNotLoggedIn, async (req, res) => {
   const user = new User(req.body);
   user.accessTimes = Array(24).fill(0); //시간 배열 초기화
-  user.lastRequestTime = Date.now();
+  user.weekAccessTimes = Array(24).fill(0);
+  user.lastRequestTime = getKoreanTime();
+  const hour = new Date(user.lastRequestTime).getHours();
+  user.accessTimes[hour]++;
+  user.weekAccessTimes[hour]++;
   try {
-    await user.save();
-    res.status(201).json(user);
+      await user.save();
+      const { password, ...userData } = user.toObject();
+      return res.json(userData);
   } catch (err) {
-    if (err.code === 11000 && err.keyPattern && err.keyPattern.email === 1) {
-      res.status(400).json({ message: "중복된 이메일입니다" });
-    } else {
-      res.status(400).json({ message: err.message });
-    }
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.email === 1) {
+          res.status(400).json({ message: errorMessages.duplicateEmail });
+      } else {
+          res.status(400).json({ message: err.message });
+      }
   }
 });
 
@@ -207,7 +181,7 @@ router.get('/like', isLoggedIn, async (req, res) => {
 
           videosInfo.push(videoInfo);
       }
-
+      //await updateAccessTimes(user);
       res.status(200).json(videosInfo);
   } catch (error) {
       console.error(error);
@@ -243,7 +217,7 @@ router.get('/bookmark', isLoggedIn, async (req, res) => {
 
           videosInfo.push(videoInfo);
       }
-
+      //await updateAccessTimes(user);
       res.status(200).json(videosInfo);
   } catch (error) {
       console.error(error);
@@ -303,6 +277,7 @@ router.post('/:userId/recent-videos', isLoggedIn, async (req, res) => {
     }
 
     await user.save();
+    //await updateAccessTimes(user);
 
     res.status(200).json({ recentVideos: user.recentVideos });
   } catch (error) {
@@ -310,6 +285,38 @@ router.post('/:userId/recent-videos', isLoggedIn, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+// 사용자의 gender에 맞는 인기 비디오
+router.get('/gender-videos', isLoggedIn, async (req, res) => {
+  try {
+      const userId = req.user._id;
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: errorMessages.userNotFound });
+      }
+      const gender=user.gender;
+
+      const popularVideos = await PopularVideo.findOne();
+      const genderVideoIds = popularVideos.byGender[gender]; //  ObjectId 배열
+
+// Video 모델에서 해당 ObjectId 배열에 해당하는 비디오들을 가져오기
+      //TODO: 이런식으로 다른 비디오도 고치기
+      const genderVideos = await Video.find({ _id: { $in: genderVideoIds } });
+      //TODO: 이거 거치면 순서가 reverse되는것 같은 느낌...?? 확인해보기
+      console.log(genderVideos);
+      //await updateAccessTimes(user);
+
+      res.status(200).json(genderVideos);
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: errorMessages.serverError });
+  }
+
+});
+
+
 
 
 module.exports = router;

@@ -4,6 +4,8 @@ import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
 import { ResponsivePie } from '@nivo/pie';
+import { ResponsiveLine } from '@nivo/line';
+import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
 import { useConfigs } from '../hooks/configs';
 
@@ -32,185 +34,80 @@ const MyProfile = () => {
 
     const screenTimeOptions = ["Accumulated", "Last 7 Days"];
 
-    const ScreenTimeResponsivePie = ({ data }) => (
-        <ResponsivePie
+    const ScreenTimeResponsiveBar = ({ data }) => (
+        <ResponsiveBar
             data={data}
-            margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-        innerRadius={0.4}
-        padAngle={1.5}
-        cornerRadius={5}
-        activeOuterRadiusOffset={8}
-        colors={{ scheme: 'reds' }}
-        borderWidth={1}
-        borderColor={{
-            from: 'color',
-            modifiers: [
-                [
-                    'darker',
-                    0.2
-                ]
-            ]
-        }}
-        enableArcLinkLabels={false}
-        arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor="#0d0d0d"
-        arcLinkLabelsThickness={2}
-        arcLinkLabelsColor={{ from: 'color' }}
-        enableArcLabels={false}
-        arcLabelsSkipAngle={10}
-        arcLabelsTextColor={{
-            from: 'color',
-            modifiers: [
-                [
-                    'darker',
-                    2                
-                ]
-            ]
-        }}
-        defs={[
-            {
-                id: 'dots',
-                type: 'patternDots',
-                background: 'inherit',
-                color: 'rgba(255, 255, 255, 0.3)',
-                size: 4,
-                padding: 1,
-                stagger: true
-            },
-            {
-                id: 'lines',
-                type: 'patternLines',
-                background: 'inherit',
-                color: 'rgba(255, 255, 255, 0.3)',
-                rotation: -45,
-                lineWidth: 6,
-                spacing: 10
-            }
-        ]}
-        fill={[
-            {
-                match: {
-                    id: '0시'
+            keys={['screen time']}
+            indexBy="hour"
+            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+            padding={0.3}
+            valueScale={{ type: 'linear' }}
+            indexScale={{ type: 'band', round: true }}
+            colors={{ scheme: 'nivo' }}
+            colorBy="indexValue"
+            defs={[
+                {
+                    id: 'dots',
+                    type: 'patternDots',
+                    background: 'inherit',
+                    color: '#38bcb2',
+                    size: 4,
+                    padding: 1,
+                    stagger: true
+                },
+                {
+                    id: 'lines',
+                    type: 'patternLines',
+                    background: 'inherit',
+                    color: '#eed312',
+                    rotation: -45,
+                    lineWidth: 6,
+                    spacing: 10
                 }
-            },
-            {
-                match: {
-                    id: '1시'
+            ]}
+            borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+            axisBottom={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legendPosition: 'middle',
+                legendOffset: 32
+            }}
+            axisLeft={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legendPosition: 'middle',
+                legendOffset: -40,
+                tickValues: "every 1"
+            }}
+            labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+            theme={{
+                axis: {
+                    legend: {
+                        text: {
+                            fontSize: 16, 
+                            fontWeight: 'bold',
+                            fill: '#555' 
+                        }
+                    },
+                    ticks: {
+                        text: {
+                            fontSize: 15, 
+                            fontWeight: 'bold',
+                            fill: '#555' 
+                        }
+                    }
+                },
+                labels: {
+                    text: {
+                        fontSize: 15, 
+                        fontWeight: 'bold',
+                        fill: '#555' 
+                    }
                 }
-            },
-            {
-                match: {
-                    id: '2시'
-                }
-            },
-            {
-                match: {
-                    id: '3시'
-                }
-            },
-            {
-                match: {
-                    id: '4시'
-                }
-            },
-            {
-                match: {
-                    id: '5시'
-                }
-            },
-            {
-                match: {
-                    id: '6시'
-                }
-            },
-            {
-                match: {
-                    id: '7시'
-                }
-            },
-            {
-                match: {
-                    id: '8시'
-                }
-            },
-            {
-                match: {
-                    id: '9시'
-                }
-            },
-            {
-                match: {
-                    id: '10시'
-                }
-            },
-            {
-                match: {
-                    id: '11시'
-                }
-            },
-            {
-                match: {
-                    id: '12시'
-                }
-            },
-            {
-                match: {
-                    id: '13시'
-                }
-            },
-            {
-                match: {
-                    id: '14시'
-                }
-            },
-            {
-                match: {
-                    id: '15시'
-                }
-            },
-            {
-                match: {
-                    id: '16시'
-                }
-            },
-            {
-                match: {
-                    id: '17시'
-                }
-            },
-            {
-                match: {
-                    id: '18시'
-                }
-            },
-            {
-                match: {
-                    id: '19시'
-                }
-            },
-            {
-                match: {
-                    id: '20시'
-                }
-            },
-            {
-                match: {
-                    id: '21시'
-                }
-            },
-            {
-                match: {
-                    id: '22시'
-                }
-            },
-            {
-                match: {
-                    id: '23시'
-                }
-            },
-        ]}
-        legends={[]}
-    />
+            }}
+        />
     );
 
     const screenTimeData = () => {
@@ -228,11 +125,11 @@ const MyProfile = () => {
         }
         if (screenTimeOption === 0) {
             const adjustedTimes = [...userData.accessTimes.slice(9), ...userData.accessTimes.slice(0, 9)];
-    
-            const pieData = adjustedTimes.map((time, index) => ({
-                id: `${index}시`,
-                value: time
-            }));
+
+                const barData = adjustedTimes.map((time, index) => ({
+                    hour: `${index}시`,
+                    'screen time': time
+        }));
 
             return (
                 <div style={{ 
@@ -242,17 +139,30 @@ const MyProfile = () => {
                     height: '40vh' 
                 }}>
                     <div style={{ 
-                        height: '500px', 
-                        width: '500px'  
+                        height: '400px', 
+                        width: '1500px'  
                     }}>
-                        <ScreenTimeResponsivePie data={pieData} />
+                        <ScreenTimeResponsiveBar data={barData} />
                     </div>
 
                 </div>
                 
             );
-        } else {
-            return <p>Last 7 Days' Screen Time Data</p>;
+        } else if (screenTimeOption === 1) {
+            const weekadjustedTimes = [...userData.weekAccessTimes.slice(9), ...userData.weekAccessTimes.slice(0, 9)];
+
+            const barData = weekadjustedTimes.map((time, index) => ({
+                hour: `${index}시`,
+                'screen time': time
+            }));
+
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40vh' }}>
+                    <div style={{ height: '400px', width: '1500px' }}>
+                        <ScreenTimeResponsiveBar data={barData} />
+                    </div>
+                </div>
+            );
         }
     };
 

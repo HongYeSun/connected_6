@@ -4,6 +4,7 @@ const Video = require('../models/Video');
 const User = require('../models/User');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
+const {updateAccessTimes} =require('./screenTime');
 
 
 

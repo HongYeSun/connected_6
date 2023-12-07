@@ -15,6 +15,7 @@ const Video = (prop) => {
 	const [isBookmarkPopupOpen, openBookmarkPopup] = useState(false);
 	const [alertMessage, setAlertMessage] = useState('');
 	const [onPlayCount, setOnPlayCount] = useState(0);
+	const [videostamp, setVideostamp] = useState(0);
 	const [videoInfo, setVideoInfo] = useState({
 		title: "",
 		subtitle: "",
@@ -39,6 +40,14 @@ const Video = (prop) => {
 			}
 		};
 		fetchVideo();
+		{/*
+		axios.post(`/api/lastwatched/${prop.id}`, videostamp)
+			.then(function (response) {
+				console.log("timestamp posted", response);
+			})
+			.catch(function (error) {
+				console.log(error);
+			});*/}
 	}, []);
 
 
@@ -67,7 +76,7 @@ const Video = (prop) => {
 	const handleLikePopupClose = () => {
 		axios.post(`/api/videos/like/${prop.id}`, prop.id)
 			.then(function (response) {
-				console.log("like result", response);
+				// console.log("like result", response);
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -78,7 +87,7 @@ const Video = (prop) => {
 	const handleBookmarkPopupClose = () => {
 		axios.post(`/api/videos/bookmark/${prop.id}`, prop.id)
 			.then(function (response) {
-				console.log("bookmark result", response);
+				// console.log("bookmark result", response);
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -87,16 +96,35 @@ const Video = (prop) => {
 	};
 
 	const handleBackButtonClick = () => {
-		prop.setVideoStamp(videoRef.current.getMediaState().currentTime);
+		prop.setVideoStamp(videoRef.current.getMediaState().currentTime); // 서버 통신 전
+
+		{/*setVideostamp(videoRef.current.getMediaState().currentTime);
+		axios.post(`/api/lastwatched/${prop.id}`, videostamp)
+			.then(function (response) {
+				console.log("timestamp posted", response);
+			})
+			.catch(function (error) {
+				console.log(error);
+			});*/}
+
 		prop.setActiveTab(0);
 	};
 
-	const gotoStartTime = () => {
+	const gotoStartTime = async () => {
 		if (onPlayCount === 0) {
-			videoRef.current.seek(prop.videoStamp);
+			videoRef.current.seek(prop.videoStamp); // 서버 통신 전
+
+			{/*axios.get(`/api/lastwatched/${prop.id}`)
+				.then(response => {
+					const data = response.data;
+					if (data.time.length > 0) {
+						videoRef.current.seek(data.time);
+					}
+				})
+			.catch(error => console.error('Error fetching data:', error));*/}
 			setOnPlayCount(1);
 		}
-	};
+	}
 
 	const toggleFullScreen = () => {
 		const element = document.getElementById('myvideo');
@@ -140,7 +168,7 @@ const Video = (prop) => {
 				// initialJumpDelay={400}
 				jumpDelay={200}
 				loop
-				playbackRateHash={{ fastForward: ['1.25', '1.5', '2','0.5','0.75','1.0']}}
+				playbackRateHash={{ fastForward: ['1.25', '1.5', '2', '0.5', '0.75', '1.0'] }}
 				miniFeedbackHideDelay={2000}
 				title={videoInfo.video.title}
 				thumbnailSrc={videoInfo.video.thumb}

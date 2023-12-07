@@ -14,6 +14,7 @@ const Video = (prop) => {
 	const [isLikePopupOpen, openLikePopup] = useState(false);
 	const [isBookmarkPopupOpen, openBookmarkPopup] = useState(false);
 	const [alertMessage, setAlertMessage] = useState('');
+	const [onPlayCount, setOnPlayCount] = useState(0);
 	const [videoInfo, setVideoInfo] = useState({
 		title: "",
 		subtitle: "",
@@ -38,7 +39,6 @@ const Video = (prop) => {
 			}
 		};
 		fetchVideo();
-		console.log("useEffect done");
 	}, []);
 
 
@@ -83,7 +83,6 @@ const Video = (prop) => {
 			.catch(function (error) {
 				console.log(error);
 			});
-
 		openBookmarkPopup(false);
 	};
 
@@ -93,8 +92,10 @@ const Video = (prop) => {
 	};
 
 	const gotoStartTime = () => {
-		console.log("gotoStartTime");
-		videoRef.current.seek(prop.videoStamp);
+		if (onPlayCount === 0) {
+			videoRef.current.seek(prop.videoStamp);
+			setOnPlayCount(1);
+		}
 	};
 
 	const toggleFullScreen = () => {
@@ -139,10 +140,11 @@ const Video = (prop) => {
 				// initialJumpDelay={400}
 				jumpDelay={200}
 				loop
-				playbackRateHash={{ fastForward: ['1.25', '1.5', '1.75', '2','0.5','0.75']}}
+				playbackRateHash={{ fastForward: ['1.25', '1.5', '2','0.5','0.75','1.0']}}
 				miniFeedbackHideDelay={2000}
 				title={videoInfo.video.title}
 				thumbnailSrc={videoInfo.video.thumb}
+				poster={videoInfo.video.thumb}
 				titleHideDelay={4000}
 				jumpBy={10}
 				onPlay={gotoStartTime}

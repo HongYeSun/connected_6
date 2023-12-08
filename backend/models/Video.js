@@ -8,14 +8,10 @@ const VideoSchema = new mongoose.Schema({
     description: { type: String, required: true }, //설명
     thumb: { type: String, required: true }, //썸네일
     source: { type: String, required: true }, //파일 저장 대신 url
-    // duration: { type: Number, required: true },
-    bookmark: { type: Number, default: 0, required: true }, //북마크 한 수
-    like: { type: Number, default: 0, required: true }, //좋아요 한 수
-    views: { type: Number, default: 0, required: true }, // 조회수
-    ageLikes: [
-        { type: Number, default: 0 }
-    ],
-    genderLikes: {
+    bookmark: {type:Number,default:0}, //북마크 한 수
+    like:  {type:Number,default:0}, //좋아요 한 수
+    views: { type: Number, default: 0}, // 조회수
+    genderViews: { // 조회수
         male: { type: Number, default: 0 },
         female: { type: Number, default: 0 },
         other: { type: Number, default: 0 }

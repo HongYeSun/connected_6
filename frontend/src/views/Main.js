@@ -9,7 +9,6 @@ import { Spinner } from '@enact/sandstone/Spinner';
 import $L from '@enact/i18n/$L';
 import Home from './Home';
 import Video from './Video';
-import Account from './Account';
 import HLSVideo from './HLSVideo';
 import MyProfile from './MyProfile';
 import MyPlayer from './MyPlayer';
@@ -86,6 +85,7 @@ const Main = (props) => {
 
     const onSelectVideo = async (videoId, videoSource) => {
         setVideoPlayerSource(videoSource);
+        console.log("Selected videoId:", videoId);
         
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
@@ -94,6 +94,11 @@ const Main = (props) => {
             } catch (error) {
                 console.error('Error updating recent videos:', error);
             }
+        }
+        try {
+            await axios.post(`/api/videos/view/${videoId}`);
+        } catch (error) {
+            console.error('Error updating video views:', error);
         }
     };
 
@@ -153,9 +158,6 @@ const Main = (props) => {
                     </Tab>
                     <Tab title={<><Icon>profilecheck</Icon> {$L('My Profile')}</>}>
                         <MyProfile />
-                    </Tab>
-                    <Tab title={<><Icon>list</Icon> {$L('User List')}</>}>
-                        <Account />
                     </Tab>
             </TabLayout>
             </Scroller>

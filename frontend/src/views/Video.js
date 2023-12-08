@@ -55,10 +55,10 @@ const Video = (prop) => {
 		} else {
 			if (videoInfo.video.bookmark === 0) {
 				setAlertMessage("Bookmarked!");
-				videoInfo.video.bookmark = 1
+				videoInfo.video.bookmark = 0
 			} else {
 				setAlertMessage("Bookmark canceled!");
-				videoInfo.video.bookmark = 0
+				videoInfo.video.bookmark = 1
 			}
 			openBookmarkPopup(true);
 		}
@@ -151,7 +151,7 @@ const Video = (prop) => {
 					/>
 					<Button icon="playspeed" size="small" />
 					<Button
-						icon="star"
+						icon="bookmark"
 						size="small"
 						onClick={() => handlePopupOpen('star')}
 					/>

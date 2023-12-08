@@ -97,62 +97,6 @@ router.post('/', isNotLoggedIn, async (req, res) => {
   }
 });
 
-// Update user
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Delete user
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findByIdAndDelete(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.sendStatus(204);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// GET user by ID
-router.get('/:id', async (req, res) => {
-  try {
-      const user = await User.findById(req.params.id);
-      if (!user) {
-          return res.status(404).send('User not found');
-      }
-      const { password, ...userData } = user.toObject();
-      res.json(userData);
-  } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: err.message });
-  }
-});
-
 router.get('/like', isLoggedIn, async (req, res) => {
   try {
       const userId = req.user._id;
@@ -222,6 +166,62 @@ router.get('/bookmark', isLoggedIn, async (req, res) => {
   } catch (error) {
       console.error(error);
       return res.status(500).json({ message: errorMessages.serverError });
+  }
+});
+
+// Update user
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete user
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.sendStatus(204);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// GET user by ID
+router.get('/:id', async (req, res) => {
+  try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+      const { password, ...userData } = user.toObject();
+      res.json(userData);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: err.message });
   }
 });
 

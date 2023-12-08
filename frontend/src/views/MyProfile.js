@@ -3,8 +3,6 @@ import Picker from '@enact/sandstone/Picker';
 import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
-import { ResponsivePie } from '@nivo/pie';
-import { ResponsiveLine } from '@nivo/line';
 import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
 import { useConfigs } from '../hooks/configs';

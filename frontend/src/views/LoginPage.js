@@ -58,24 +58,34 @@ const LoginPage = () => {
                     {!loginStatus.isLoggedIn ? (
                         <>
                             <h2>{$L('Login')}</h2>
+                            <p>Login using your email and password</p> 
+
                             {loginStatus.loginFailMessage && (
                                 <div className={css.loginerrorContainer}>
                                     <p className={css.errorMessage}>{loginStatus.loginFailMessage}</p>
                                 </div>
                             )}
                             <br></br>
-                            <InputField
-                                type="email"
-                                placeholder={$L("Email")}
-                                value={loginDetails.email}
-                                onChange={(e) => handleInputChange(e, 'email')}
-                            /><br /><br />
-                            <InputField
-                                type="password"
-                                placeholder={$L("Password")}
-                                value={loginDetails.password}
-                                onChange={(e) => handleInputChange(e, 'password')}
-                            /><br /><br />
+                            <div className={css.inputField}>
+                                <label htmlFor="email">Email</label>
+                                <InputField
+                                    type="email"
+                                    placeholder={$L("Email")}
+                                    value={loginDetails.email}
+                                    onChange={(e) => handleInputChange(e, 'email')}
+                                />
+                            </div>
+                            <br />
+                            <div className={css.inputField}>
+                                <label htmlFor="password">Password</label>
+                                <InputField
+                                    type="password"
+                                    placeholder={$L("Password")}
+                                    value={loginDetails.password}
+                                    onChange={(e) => handleInputChange(e, 'password')}
+                                />
+                            </div>
+                            <br />
                             <Button className={css.submitButton} onClick={handleLogin}>{$L('Login')}</Button>
                         </>
                     ) : (

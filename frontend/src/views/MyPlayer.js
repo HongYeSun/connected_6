@@ -19,6 +19,7 @@ const MyPlayer = ({onSelectVideo}) => {
             axios.get(`/api/users/${userId}`)
                 .then(response => {
                     const userData = response.data;
+                    fetchLikedAndBookmarkedVideos(userData);
                     if (userData.recentVideos.length > 0) {
                         fetchRecentVideos(userData.recentVideos);
                     }
@@ -41,6 +42,23 @@ const MyPlayer = ({onSelectVideo}) => {
             console.error('Error fetching recent videos:', error);
             setLoading(false);
         }
+    };
+
+    const fetchLikedAndBookmarkedVideos = (userData) => {
+        const userId = userData._id;
+        // 좋아요
+        axios.get(`/api/users/like`)
+            .then(response => {
+                setLikedVideos(response.data);
+            })
+            .catch(error => console.error('Error fetching liked videos:', error));
+
+        // 북마크
+        axios.get(`/api/users/bookmark`)
+            .then(response => {
+                setBookmarkedVideos(response.data);
+            })
+            .catch(error => console.error('Error fetching bookmarked videos:', error));
     };
 
     const handleClickEvent = (video) => {
@@ -72,6 +90,32 @@ const MyPlayer = ({onSelectVideo}) => {
                     </ImageItem>
                 ))}
                 {/* Liked와 Bookmarked 비디오 추가*/}
+                <h2><Icon>heart</Icon> Liked Videos</h2>
+                {likedVideos.map((video, index) => (
+                    <ImageItem
+                        inline
+                        key={index}
+                        label={video.subtitle}
+                        src={video.thumb}
+                        onClick={() => handleClickEvent(video)}
+                        style={{ height: 190, width: 229.33333333333331 }}
+                    >
+                        {video.title}
+                    </ImageItem>
+                ))}
+                <h2><Icon>bookmark</Icon> Bookmarked Videos</h2>
+                {bookmarkedVideos.map((video, index) => (
+                    <ImageItem
+                        inline
+                        key={index}
+                        label={video.subtitle}
+                        src={video.thumb}
+                        onClick={() => handleClickEvent(video)}
+                        style={{ height: 190, width: 229.33333333333331 }}
+                    >
+                        {video.title}
+                    </ImageItem>
+                ))}
             </Scroller>
             {selectedVideo && (
                 <Video src={selectedVideo.source} />

@@ -33,15 +33,15 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
             if(video.like>0)
                 video.like -= 1;
             if(video.ageLikes[ageIdx]>0)
-                video.ageLikes[ageIdx]-=1;
-            if(video.genderLikes[gender]>0)
-                video.genderLikes[gender]-=1;
+               video.ageLikes[ageIdx]-=1;
+            // if(video.genderLikes[gender]>0)
+            //     video.genderLikes[gender]-=1;
             user.likedVideos = user.likedVideos.filter((id) => id.toString() !== videoId);
         } else {
             // 기존에 좋아요를 하지 않은 경우
             video.like += 1;
-            video.ageLikes[ageIdx]+=1;
-            video.genderLikes[gender]+=1;
+            // video.ageLikes[ageIdx]+=1;
+            // video.genderLikes[gender]+=1;
             user.likedVideos.push(videoId);
         }
 
@@ -85,6 +85,18 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.error });
+    }
+});
+
+router.get('/top-videos', async (req, res) => {
+    try {
+        const topVideos = await Video.find()
+                                     .sort({ views: -1, title: 1 })
+                                     .limit(10);
+        res.json(topVideos);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -153,5 +165,20 @@ router.post('/fetch-videos', async (req, res) => {
     }
 });
 
+router.post('/view/:videoId', async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+        video.views += 1; // 어느 탭에서든 비디오 관람시 view 증가
+        await video.save();
+        return res.status(200).json({ message: 'Views updated' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 module.exports = router;

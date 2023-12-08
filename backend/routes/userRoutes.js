@@ -44,9 +44,7 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
 
 //Logout
 router.get('/logout', isLoggedIn,  async(req, res) => {
-    const userId = req.user._id;
-    const user=User.findById(userId);
-    await updateAccessTimes(user);
+
     req.logout(function(err) {
         if (err) {
             console.error(err);

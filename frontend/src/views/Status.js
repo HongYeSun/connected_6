@@ -3,7 +3,7 @@ import Button from '@enact/sandstone/Button';
 import Scroller from '@enact/sandstone/Scroller';
 import $L from '@enact/i18n/$L';
 import css from './Main.module.less';
-import { useCpu, useMem } from '../hooks/configs';
+import { useCpu, useMem, useConfigs } from '../hooks/configs';
 import { useState, useEffect } from 'react';
 import { ResponsivePie } from '@nivo/pie'
 
@@ -148,6 +148,7 @@ const SysResponsivePie = ({ data }) => (
 )
 
 const Status = () => {
+    const data = useConfigs();
     const [data_cpu, setCpu] = useCpu({ returnValue: false });
     const [data_mem, setMem] = useMem({ returnValue: false });
     const [parsedData, setParsedData] = useState({
@@ -202,6 +203,20 @@ const Status = () => {
                 "color": "hsl(253, 70%, 50%)"
             }
         ]
+    );
+
+    const renderTVInfo = () => (
+        <div>
+            <h2>TV Information</h2>
+            {data && (
+                <ul>
+                    <li><strong>Model Name:</strong> {data.modelName}</li>
+                    <li><strong>Firmware Version:</strong> {data.firmwareVersion}</li>
+                    <li><strong>UHD:</strong> {data.UHD}</li>
+                    <li><strong>SDK Version:</strong> {data.sdkVersion}</li>
+                </ul>
+            )}
+        </div>
     );
 
     const setData = async () => {
@@ -294,8 +309,8 @@ const Status = () => {
         <Scroller direction="verticle">
             <BodyText>{$L('This is a page for system status.')}</BodyText>
             {<Button onClick={setData} size="small" className={css.buttonCell}>
-                    {$L('Refresh')}
-                </Button>}
+                {$L('Refresh')}
+            </Button>}
             {/* <BodyText>{`Cpu status : ${JSON.stringify(data_cpu)}`}</BodyText>
             <BodyText>{`Mem status: ${JSON.stringify(data_mem)}`}</BodyText> */}
             <div style={{
@@ -305,8 +320,7 @@ const Status = () => {
                 height: '600px',
                 width: '700px'
             }}>
-                <SysResponsivePie data={MemPieData}
-                />
+                <SysResponsivePie data={MemPieData}/>
             </div>
             <div style={{
                 position: "absolute",
@@ -315,8 +329,7 @@ const Status = () => {
                 height: '600px',
                 width: '700px'
             }}>
-                <SysResponsivePie data={CpuPieData}
-                />
+                <SysResponsivePie data={CpuPieData}/>
             </div>
             <div style={{
                 position: "absolute",
@@ -336,6 +349,15 @@ const Status = () => {
                 <BodyText>{`Cpu_user: ${parsedData.user}`}</BodyText>
                 <BodyText>{`Cpu_irq: ${parsedData.irq}`}</BodyText>
                 <BodyText>{`Cpu_system: ${parsedData.system}`}</BodyText>
+            </div>
+            <div style={{
+                position: "absolute",
+                top: '1100px',
+                left: '300px',
+                height: '600px',
+                width: '700px'
+            }}>
+                {renderTVInfo()}
             </div>
         </Scroller>
     );

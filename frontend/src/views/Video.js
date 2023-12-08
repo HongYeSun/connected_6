@@ -1,7 +1,7 @@
 import VideoPlayer from '@enact/sandstone/VideoPlayer';
 import { useState, useEffect } from 'react';
 import { MediaControls } from '@enact/sandstone/MediaPlayer';
-import { useCpu, useMem } from '../hooks/configs';
+import { useCpu, useMem, useInterval } from '../hooks/configs';
 import Button from '@enact/sandstone/Button';
 import BodyText from '@enact/sandstone/BodyText';
 
@@ -57,33 +57,31 @@ const Video = (prop) => {
 
 	const handleStatClick = () => {
 		setStatShow(!statShow);
-		console.log("toggle: " + statShow);
+		// console.log("toggle: " + statShow);
+	};
+
+	useInterval(() => {
 		if (statShow) {
 			setData();
 		}
-	};
+	}, 1000);
 
 	function Status() {
 		return (
 			<>
-				<BodyText>
-					<BodyText>{`Mem_level: ${parsedData.level}`}</BodyText>
-					<BodyText>{`Mem_available: ${parsedData.available}`}</BodyText>
-					<BodyText>{`Mem_total: ${parsedData.total}`}</BodyText>
-					<BodyText>{`Cpu_idle: ${parsedData.idle}`}</BodyText>
-					<BodyText>{`Cpu_user: ${parsedData.user}`}</BodyText>
-					<BodyText>{`Cpu_irq: ${parsedData.irq}`}</BodyText>
-					<BodyText>{`Cpu_system: ${parsedData.system}`}</BodyText>
-				</BodyText>
+				<BodyText>{`Mem_level: ${parsedData.level}`}</BodyText>
+				<BodyText>{`Mem_available: ${parsedData.available}`}</BodyText>
+				<BodyText>{`Mem_total: ${parsedData.total}`}</BodyText>
+				<BodyText>{`Cpu_idle: ${parsedData.idle}`}</BodyText>
+				<BodyText>{`Cpu_user: ${parsedData.user}`}</BodyText>
+				<BodyText>{`Cpu_irq: ${parsedData.irq}`}</BodyText>
+				<BodyText>{`Cpu_system: ${parsedData.system}`}</BodyText>
 			</>
 		);
 	}
 
 	return (
 		<>
-			<div>
-				<Button icon="list" size="small" onClick={handleStatClick} />
-			</div>
 			<div
 				style={{
 					height: '70vh',
@@ -95,7 +93,6 @@ const Video = (prop) => {
 					margin: '0 auto'
 				}}
 			>
-				<div>Sample code</div>
 				<VideoPlayer
 					autoCloseTimeout={7000}
 					backButtonAriaLabel="go to previous"
@@ -111,7 +108,6 @@ const Video = (prop) => {
 					<source src={prop.src} type="video/mp4" />
 					<infoComponents>
 						A video about some things happening to and around some characters.
-						Very exciting stuff.
 					</infoComponents>
 					<MediaControls
 						jumpBackwardIcon="jumpbackward"
@@ -120,8 +116,9 @@ const Video = (prop) => {
 						playIcon="play"
 					>
 						<Button icon="list" size="small" />
-						<Button icon="playspeed" size="small" />
-						<Button icon="speakercenter" size="small" />
+						<Button icon="help"
+							size="small"
+							onClick={handleStatClick} />
 						<Button icon="miniplayer" size="small" />
 						<Button icon="subtitle" size="small" />
 					</MediaControls>
@@ -129,7 +126,7 @@ const Video = (prop) => {
 				<div style={{
 					position: "absolute",
 					top: '80px',
-					left: '20px'
+					left: '0px',
 				}}>
 					{statShow ? <Status /> : null}
 				</div>

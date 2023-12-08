@@ -5,23 +5,9 @@ const Video=require('../models/Video');
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
-const {getKoreanTime,updateAccessTimes} =require('./screenTime');
+const {updateAccessTimes} =require('./screenTime');
 const PopularVideo = require("../models/PopularVideo");
-
-
-// Get all users
-// password 빼고 전달
-router.get('/', async (req, res) => {
-  try {
-      const users = await User.find().select('-password');
-      res.json(users);
-    // console.log(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
+const dayjs = require('dayjs');
 //Login
 router.post('/login', isNotLoggedIn, async(req, res, next) => {
   passport.authenticate('local',  (err, user, info) => {
@@ -45,7 +31,6 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
 
           try {
               await updateAccessTimes(user);
-
               const { password, ...userData } = user.toObject();
               return res.json(userData);
           } catch (error) {
@@ -136,22 +121,23 @@ router.get('/bookmark', isLoggedIn, async (req, res) => {
 router.get('/recent-videos', isLoggedIn, async (req, res) => {
     try {
         const userId = req.user._id;
-        const user = await User.findById(userId).populate('recentVideos');
+        const user = await User.findById(userId).populate('recentVideos.video');
 
         if (!user) {
             return res.status(404).json({ message: errorMessages.userNotFound });
         }
-
-        const recentVideos = user.recentVideos; // 사용자가 최근 본 비디오들 10개
         const videosInfo = [];
+        const recentVideos = user.recentVideos; // 사용자가 최근 본 비디오들
 
         for (const video of recentVideos) {
-            const { _id, title, subtitle, description, thumb, source, bookmark, like, views } = video;
+            const { _id, title, subtitle, description, thumb, source, bookmark, like, views } = video["video"];
             const videoInfo = { _id, title, subtitle, description, thumb, source, bookmark, like, views };
             videosInfo.push(videoInfo);
         }
+
         await updateAccessTimes(user);
-        res.status(200).json(videosInfo);
+        res.status(200).json(recentVideos);
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.serverError });
@@ -159,37 +145,7 @@ router.get('/recent-videos', isLoggedIn, async (req, res) => {
 
 });
 
-// 사용자의 연령에 맞는 인기 비디오
-router.get('/age-videos', isLoggedIn, async (req, res) => {
-    try {
-        const userId = req.user._id;
-
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return res.status(404).json({ message: errorMessages.userNotFound });
-        }
-        let age=Math.floor(user.age/10);
-        if(age>7){
-            age=7;
-        }
-        const popularVideos = await PopularVideo.findOne();
-        const ageVideoIds = popularVideos.byAge[age]; // 나이 그룹에 해당하는 ObjectId 배열
-
-// Video 모델에서 해당 ObjectId 배열에 해당하는 비디오들을 가져오기
-        //TODO: 이런식으로 다른 비디오도 고치기
-        const ageVideos = await Video.find({ _id: { $in: ageVideoIds } });
-        console.log(ageVideos);
-        await updateAccessTimes(user);
-
-        res.status(200).json(ageVideos);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: errorMessages.serverError });
-    }
-
-});
-// 사용자의 gender에 맞는 인기 비디오
+// gender 인기 비디오
 router.get('/gender-videos', isLoggedIn, async (req, res) => {
     try {
         const userId = req.user._id;
@@ -199,25 +155,46 @@ router.get('/gender-videos', isLoggedIn, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: errorMessages.userNotFound });
         }
-        const gender=user.gender;
+        const genderGroup=['female','male','other'];
+        let videos={};
+        for(const gender of genderGroup) {
 
-        const popularVideos = await PopularVideo.findOne();
-        const genderVideoIds = popularVideos.byGender[gender]; //  ObjectId 배열
+            const popularVideos = await PopularVideo.findOne();
+            const genderVideoIds = popularVideos[gender]; //  ObjectId 배열
 
-// Video 모델에서 해당 ObjectId 배열에 해당하는 비디오들을 가져오기
-        //TODO: 이런식으로 다른 비디오도 고치기
-        const genderVideos = await Video.find({ _id: { $in: genderVideoIds } });
-        //TODO: 이거 거치면 순서가 reverse되는것 같은 느낌...?? 확인해보기
-        console.log(genderVideos);
+            const genderVideos = await Video.find({_id: {$in: genderVideoIds}});
+            //TODO: 이거 거치면 순서가 reverse되는것 같은 느낌...?? -> 순서섞임..ㅠㅠ find로 하면 안되고 하나하나 찾아서 push해야할듯
+            videos[gender]=genderVideos;
+        }
+
         await updateAccessTimes(user);
 
-        res.status(200).json(genderVideos);
+        return res.status(200).json(videos);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.serverError });
     }
 
 });
+
+//total,week accesstime array return
+router.get('/access-times', isLoggedIn, async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: errorMessages.userNotFound });
+        }
+        await updateAccessTimes(user);
+        return res.status(200).json({'total': user.accessTimes,'week':user.weekAccessTimes});
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: errorMessages.serverError });
+    }
+
+});
+
 // Auto-login 
 router.post('/auto-login', async (req, res) => {
   try {
@@ -228,7 +205,7 @@ router.post('/auto-login', async (req, res) => {
       if (!user) {
           return res.status(404).json({ message: errorMessages.userNotFound });
       }
-
+      await updateAccessTimes(user);
       req.login(user, loginErr => {
           if (loginErr) {
               console.error(loginErr);
@@ -250,10 +227,12 @@ router.post('/', isNotLoggedIn, async (req, res) => {
     const user = new User(req.body);
     user.accessTimes = Array(24).fill(0); //시간 배열 초기화
     user.weekAccessTimes = Array(24).fill(0);
-    user.lastRequestTime = getKoreanTime();
-    const hour = new Date(user.lastRequestTime).getHours();
+    const lastRequestTime = dayjs().tz();
+    const hour = lastRequestTime.get("h");
+    user.lastRequestTime=lastRequestTime.toDate();
     user.accessTimes[hour]++;
     user.weekAccessTimes[hour]++;
+
     try {
         await user.save();
         const { password, ...userData } = user.toObject();
@@ -267,7 +246,7 @@ router.post('/', isNotLoggedIn, async (req, res) => {
     }
 });
 
-// Update user
+// Update user : 이거랑 delete는 일단 넣어두긴 했는데 쓸일이 있나..?
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -296,7 +275,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-// GET user by ID
+// GET user by ID: 이것도 쓸일이 있나..?
 router.get('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);

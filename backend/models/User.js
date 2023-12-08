@@ -11,10 +11,13 @@ const UserSchema = new mongoose.Schema({
   age: { type: Number, min: 0 , required: true},
   likedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 좋아요한 비디오
   bookmarkedVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 찜한 비디오
-  recentVideos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }], // 최근에 본 비디오 (최대 20개)
+  recentVideos: [{
+    video: { type: mongoose.Schema.Types.ObjectId, ref: 'Video' },
+    lastWatched: { type: Number,min:0 } // 초
+  }],//최근에 본 비디오
   accessTimes: [{ type: Number }],  // 총 스크린타임 (24시간 array)
   weekAccessTimes:[{ type: Number }], //이번주 스크린타임
-  lastRequestTime: { type: Date, default: Date.now }
+  lastRequestTime: { type: Date}
 }, {
   versionKey: false});
 

@@ -47,6 +47,12 @@ cron.schedule('0 * * * *', async () => {
 cron.schedule('0 0 * * 1',async()=>{
     await resetWeekAccessTimes();
 })
+const dayjs = require('dayjs');
+const timezone = require('dayjs/plugin/timezone');
+const utc = require('dayjs/plugin/utc');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Seoul'); //한국시간 설정
 
 app.use('/api/users', userRoutes);
 app.use('/api/videos', videoRoutes);

@@ -15,11 +15,7 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
 
         const video = await Video.findById(videoId);
         const user = await User.findById(userId);
-        let ageIdx = Math.floor(user.age / 10);
         let flag;
-        if(ageIdx>7)
-            ageIdx=7;
-        const gender=await user.gender;
 
         // 비디오가 없는 경우
         if (!video) {
@@ -31,17 +27,11 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
             // 비디오의 좋아요 수 감소 및 사용자 likedVideos에서 제거
             if(video.like>0)
                 video.like -= 1;
-            if(video.ageLikes[ageIdx]>0)
-                video.ageLikes[ageIdx]-=1;
-            if(video.genderLikes[gender]>0)
-                video.genderLikes[gender]-=1;
             user.likedVideos = user.likedVideos.filter((id) => id.toString() !== videoId);
             flag=false;
         } else {
             // 기존에 좋아요를 하지 않은 경우
             video.like += 1;
-            video.ageLikes[ageIdx]+=1;
-            video.genderLikes[gender]+=1;
             user.likedVideos.unshift(videoId);
             flag=true;
         }
@@ -103,26 +93,65 @@ router.get('/:videoId', isLoggedIn,async (req, res) => {
         const video = await Video.findById(videoId);
         const userId = req.user._id; // 로그인한 사용자의 ID
         const user = await User.findById(userId);
-
+        const gender=user.gender;
 
         if (!video) {
             return res.status(404).json({ message: errorMessages.videoNotFound });
         }
-        //만약 최근 본 비디오에 있으면 제거
-        user.recentVideos = user.recentVideos.filter((id) => id.toString() !== videoId);
-        //맨 앞으로 추가
-        user.recentVideos.unshift(videoId);
-        if(user.recentVideos.length>10){ //최대 10개만 저장
-            user.recentVideos.length=10;
+
+        const foundIndex = user.recentVideos.findIndex((recentVideo) => recentVideo.video.toString() === videoId);
+        let lastWatchedTime = 0; // 초 초기값
+
+        if (foundIndex !== -1) {
+
+            lastWatchedTime = user.recentVideos[foundIndex].lastWatched;
+            user.recentVideos.splice(foundIndex, 1); // 기존 항목 제거
         }
+        user.recentVideos.unshift({ video: videoId, lastWatched: lastWatchedTime });
+
+        video.genderViews[gender]++;
+        video.views++;
         await updateAccessTimes(user);
         await user.save();
-        return res.status(200).json({ video });
+        await video.save();
+        return res.status(200).json({ video, "lastWatched":lastWatchedTime});
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: errorMessages.error});
     }
 });
+
+//다 보고나서 화면 나갈때 lastwatched 업데이트 (last watched는 json으로 받았다고 가정)
+router.post('/:videoId', isLoggedIn,async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const { lastWatched }= req.body;
+
+        const video = await Video.findById(videoId);
+        const userId = req.user._id; // 로그인한 사용자의 ID
+        const user = await User.findById(userId);
+
+        if (!video) {
+            return res.status(404).json({ message: errorMessages.videoNotFound });
+        }
+        const foundIndex = user.recentVideos.findIndex(
+            (recentVideo) => recentVideo.video.toString() === videoId
+        );
+
+        if (foundIndex !== -1) {
+            user.recentVideos[foundIndex].lastWatched = lastWatched;
+        }
+
+        await updateAccessTimes(user);
+        await user.save();
+        return res.status(200).json({ message: errorMessages.lastWatchedSuccess});
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: errorMessages.error});
+    }
+});
+
 
 //post new video
 router.post('/',  async (req, res) => {
@@ -155,9 +184,6 @@ router.get('/', async (req, res) => {
 });
 
 
-//2.
-//프론트: 현재 00초부터 재생(추후 논의)
 
-//TODO: 앞으로 해야할거: 이어보기 구현
 module.exports = router;
 

@@ -11,6 +11,7 @@ const errorMessages = {
     duplicateEmail: 'Duplicate email.',
     passwordError: 'Incorrect password.',
     emailError: 'Account does not exist.',
+    lastWatchedSuccess: 'Last watched updated successfully.',
     error: 'An error occurred.'
 };
 module.exports = errorMessages;

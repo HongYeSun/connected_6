@@ -105,9 +105,7 @@ router.get('/bookmark', isLoggedIn, async (req, res) => {
       const videosInfo = [];
 
       for (const video of bookmarkedVideos) {
-          const { _id, title, subtitle, description, thumb, source, bookmark, like, views } = video;
-          const videoInfo = { _id, title, subtitle, description, thumb, source, bookmark, like, views };
-          videosInfo.push(videoInfo);
+          videosInfo.push(video);
       }
       await updateAccessTimes(user);
       res.status(200).json(videosInfo);
@@ -130,13 +128,11 @@ router.get('/recent-videos', isLoggedIn, async (req, res) => {
         const recentVideos = user.recentVideos; // 사용자가 최근 본 비디오들
 
         for (const video of recentVideos) {
-            const { _id, title, subtitle, description, thumb, source, bookmark, like, views } = video["video"];
-            const videoInfo = { _id, title, subtitle, description, thumb, source, bookmark, like, views };
-            videosInfo.push(videoInfo);
+            videosInfo.push(video["video"]);
         }
 
         await updateAccessTimes(user);
-        res.status(200).json(recentVideos);
+        res.status(200).json(videosInfo);
 
     } catch (error) {
         console.error(error);
@@ -145,8 +141,8 @@ router.get('/recent-videos', isLoggedIn, async (req, res) => {
 
 });
 
-// gender 인기 비디오
-router.get('/gender-videos', isLoggedIn, async (req, res) => {
+//인기 비디오
+router.get('/popular-videos', isLoggedIn, async (req, res) => {
     try {
         const userId = req.user._id;
 
@@ -155,20 +151,24 @@ router.get('/gender-videos', isLoggedIn, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: errorMessages.userNotFound });
         }
-        const genderGroup=['female','male','other'];
+        const genderGroup=['female','male','other','total'];
         let videos={};
         for(const gender of genderGroup) {
 
             const popularVideos = await PopularVideo.findOne();
             const genderVideoIds = popularVideos[gender]; //  ObjectId 배열
 
-            const genderVideos = await Video.find({_id: {$in: genderVideoIds}});
-            //TODO: 이거 거치면 순서가 reverse되는것 같은 느낌...?? -> 순서섞임..ㅠㅠ find로 하면 안되고 하나하나 찾아서 push해야할듯
-            videos[gender]=genderVideos;
+            const genderVideos = [];
+            for (const videoId of genderVideoIds) {
+                const video = await Video.findById(videoId);
+                if (video) {
+                    genderVideos.push(video);
+                }
+            }
+            videos[gender]=genderVideos; //순서대로
         }
 
         await updateAccessTimes(user);
-
         return res.status(200).json(videos);
     } catch (error) {
         console.error(error);
@@ -199,7 +199,6 @@ router.get('/access-times', isLoggedIn, async (req, res) => {
 router.post('/auto-login', async (req, res) => {
   try {
       const { userId } = req.body;
-
       const user = await User.findById(userId);
 
       if (!user) {
@@ -246,7 +245,8 @@ router.post('/', isNotLoggedIn, async (req, res) => {
     }
 });
 
-// Update user : 이거랑 delete는 일단 넣어두긴 했는데 쓸일이 있나..?
+
+// Update user
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -259,7 +259,7 @@ router.put('/:id', async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 });
-
+/* 안써서 주석처리
 // Delete user
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
@@ -273,9 +273,9 @@ router.delete('/:id', async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 });
+*/
 
-
-// GET user by ID: 이것도 쓸일이 있나..?
+// GET user by ID
 router.get('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);

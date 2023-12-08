@@ -2,7 +2,7 @@ const Video = require('../models/Video');
 const PopularVideo = require('../models/PopularVideo');
 const User = require("../models/User");
 // 매 시간마다 실행
-//TODO : 이거 수정해야됨!!!!
+
 const updatePopularVideo = async () => {
     try {
         const videos = await Video.find();
@@ -16,6 +16,8 @@ const updatePopularVideo = async () => {
             const sortedByGender = videos.sort((a, b) => b.genderViews[gender] - a.genderViews[gender]);
             genderGroups[gender] = sortedByGender.slice(0, Math.min(sortedByGender.length, 10));
         }
+        const totalSort = videos.sort((a, b) => b.views - a.views);
+        genderGroups["total"] = totalSort.slice(0, Math.min(totalSort.length, 10));
 
         let popularVideo = await PopularVideo.findOne();
 
@@ -23,12 +25,14 @@ const updatePopularVideo = async () => {
             popularVideo = new PopularVideo({
                 male: genderGroups.male,
                 female: genderGroups.female,
-                other: genderGroups.other
+                other: genderGroups.other,
+                total:genderGroups.total
             });
         } else {
             popularVideo.male= genderGroups.male;
             popularVideo.female= genderGroups.female;
             popularVideo.other= genderGroups.other;
+            popularVideo.total= genderGroups.total;
         }
         await popularVideo.save();
         console.log("Update popular videos");

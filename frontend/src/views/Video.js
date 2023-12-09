@@ -6,10 +6,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import Alert from '@enact/sandstone/Alert';
 import css from './Main.module.less';
 import axios from 'axios';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const Video = (prop) => {
 	const videoRef = useRef();
-	const accessToken = "s%3AmVZW5833LC8p_rJt2vL9pWClmxOUZkKl.GFZB3Ug22E7Re7Gm43IR%2BdoVj8vwM2I5zMHFXuNZhzU";
+	//const accessToken = "s%3AmVZW5833LC8p_rJt2vL9pWClmxOUZkKl.GFZB3Ug22E7Re7Gm43IR%2BdoVj8vwM2I5zMHFXuNZhzU";
 	const [loading, setLoading] = useState(true);
 	const [isLikePopupOpen, openLikePopup] = useState(false);
 	const [isBookmarkPopupOpen, openBookmarkPopup] = useState(false);
@@ -34,7 +35,7 @@ const Video = (prop) => {
 		//console.log(document.cookie);
 		const fetchVideos = async () => {
 			try {
-				const response = await axios.get(`/api/videos/${prop.id}`, prop.id);
+				const response = await axios.get(`${serverUri}/api/videos/${prop.id}`, prop.id);
 				console.log(response);
 				const videoData = response.data;
 				setVideoInfo(videoData.video);
@@ -62,7 +63,7 @@ const Video = (prop) => {
 
 	const handlePopupOpen = (key) => {
 		if (key === 'heart') {
-			axios.post(`/api/videos/like/${prop.id}`, prop.id)
+			axios.post(`${serverUri}/api/videos/like/${prop.id}`, prop.id)
 				.then(function (response) {
 					const likeStatus = response.data;
 					if (likeStatus.flag) {
@@ -76,7 +77,7 @@ const Video = (prop) => {
 				});
 			openLikePopup(true);
 		} else {
-			axios.post(`/api/videos/bookmark/${prop.id}`, prop.id)
+			axios.post(`${serverUri}/api/videos/bookmark/${prop.id}`, prop.id)
 				.then(function (response) {
 					const bookmarkStatus = response.data;
 					if (bookmarkStatus.flag) {
@@ -106,7 +107,7 @@ const Video = (prop) => {
 		setVideostamp(video_stamp);
 		try {
 			console.log(video_stamp);
-			const res = await axios.post(`/api/videos/${prop.id}`, {
+			const res = await axios.post(`${serverUri}/api/videos/${prop.id}`, {
 				"lastWatched": video_stamp
 			}, prop.id)
 			console.log(res);

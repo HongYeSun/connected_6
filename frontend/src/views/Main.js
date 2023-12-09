@@ -30,6 +30,7 @@ import profileImage12 from '../images/profile12.png';
 import profileImage13 from '../images/profile13.png';
 import profileImage14 from '../images/profile14.png';
 import profileImage15 from '../images/profile15.png';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');
@@ -61,7 +62,7 @@ const Main = (props) => {
     useEffect(() => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
-            axios.get(`/api/users/${userId}`)
+            axios.get(`${serverUri}/api/users/${userId}`)
                 .then(response => {
                     const userData = response.data;
                     setUsername(userData.username);
@@ -90,7 +91,7 @@ const Main = (props) => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
             try {
-                await axios.get(`/api/videos/${videoId}`, videoId);
+                await axios.get(`${serverUri}/api/videos/${videoId}`, videoId);
             } catch (error) {
                 console.error('Error updating recent videos:', error);
             }

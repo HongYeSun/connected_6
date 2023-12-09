@@ -3,9 +3,10 @@ import Picker from '@enact/sandstone/Picker';
 import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
-import { ResponsivePie } from '@nivo/pie';
+
 import axios from 'axios';
 import { useConfigs } from '../hooks/configs';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const MyProfile = () => {
     const [screenTimeOption, setScreenTimeOption] = useState(0);
@@ -16,7 +17,7 @@ const MyProfile = () => {
     useEffect(() => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
-            axios.get(`/api/users/${userId}`)
+            axios.get(`${serverUri}/api/users/${userId}`)
                 .then(response => {
                     setUserData(response.data);
                 })
@@ -31,187 +32,6 @@ const MyProfile = () => {
     };
 
     const screenTimeOptions = ["Accumulated", "Last 7 Days"];
-
-    const ScreenTimeResponsivePie = ({ data }) => (
-        <ResponsivePie
-            data={data}
-            margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-        innerRadius={0.4}
-        padAngle={1.5}
-        cornerRadius={5}
-        activeOuterRadiusOffset={8}
-        colors={{ scheme: 'reds' }}
-        borderWidth={1}
-        borderColor={{
-            from: 'color',
-            modifiers: [
-                [
-                    'darker',
-                    0.2
-                ]
-            ]
-        }}
-        enableArcLinkLabels={false}
-        arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor="#0d0d0d"
-        arcLinkLabelsThickness={2}
-        arcLinkLabelsColor={{ from: 'color' }}
-        enableArcLabels={false}
-        arcLabelsSkipAngle={10}
-        arcLabelsTextColor={{
-            from: 'color',
-            modifiers: [
-                [
-                    'darker',
-                    2                
-                ]
-            ]
-        }}
-        defs={[
-            {
-                id: 'dots',
-                type: 'patternDots',
-                background: 'inherit',
-                color: 'rgba(255, 255, 255, 0.3)',
-                size: 4,
-                padding: 1,
-                stagger: true
-            },
-            {
-                id: 'lines',
-                type: 'patternLines',
-                background: 'inherit',
-                color: 'rgba(255, 255, 255, 0.3)',
-                rotation: -45,
-                lineWidth: 6,
-                spacing: 10
-            }
-        ]}
-        fill={[
-            {
-                match: {
-                    id: '0시'
-                }
-            },
-            {
-                match: {
-                    id: '1시'
-                }
-            },
-            {
-                match: {
-                    id: '2시'
-                }
-            },
-            {
-                match: {
-                    id: '3시'
-                }
-            },
-            {
-                match: {
-                    id: '4시'
-                }
-            },
-            {
-                match: {
-                    id: '5시'
-                }
-            },
-            {
-                match: {
-                    id: '6시'
-                }
-            },
-            {
-                match: {
-                    id: '7시'
-                }
-            },
-            {
-                match: {
-                    id: '8시'
-                }
-            },
-            {
-                match: {
-                    id: '9시'
-                }
-            },
-            {
-                match: {
-                    id: '10시'
-                }
-            },
-            {
-                match: {
-                    id: '11시'
-                }
-            },
-            {
-                match: {
-                    id: '12시'
-                }
-            },
-            {
-                match: {
-                    id: '13시'
-                }
-            },
-            {
-                match: {
-                    id: '14시'
-                }
-            },
-            {
-                match: {
-                    id: '15시'
-                }
-            },
-            {
-                match: {
-                    id: '16시'
-                }
-            },
-            {
-                match: {
-                    id: '17시'
-                }
-            },
-            {
-                match: {
-                    id: '18시'
-                }
-            },
-            {
-                match: {
-                    id: '19시'
-                }
-            },
-            {
-                match: {
-                    id: '20시'
-                }
-            },
-            {
-                match: {
-                    id: '21시'
-                }
-            },
-            {
-                match: {
-                    id: '22시'
-                }
-            },
-            {
-                match: {
-                    id: '23시'
-                }
-            },
-        ]}
-        legends={[]}
-    />
-    );
 
     const screenTimeData = () => {
         if (!userData) {
@@ -245,7 +65,7 @@ const MyProfile = () => {
                         height: '500px', 
                         width: '500px'  
                     }}>
-                        <ScreenTimeResponsivePie data={pieData} />
+                    
                     </div>
 
                 </div>
@@ -258,7 +78,7 @@ const MyProfile = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.get('/api/users/logout'); 
+            await axios.get(`${serverUri}/api/users/logout`); 
             window.sessionStorage.clear(); 
             navigate('/login');
         } catch (error) {

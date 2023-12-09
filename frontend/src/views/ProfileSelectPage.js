@@ -5,6 +5,7 @@ import { ImageItem } from '@enact/sandstone/ImageItem';
 import axios from 'axios';
 import $L from '@enact/i18n/$L';
 import css from "./Auth.module.less";
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 import profileImage1 from '../images/profile1.png';
 import profileImage2 from '../images/profile2.png';
@@ -35,10 +36,10 @@ const ProfileSelectPage = () => {
 
     const handleImageSelect = async (profileNumber) => {
         try {
-            const response = await axios.put(`/api/users/${userId}`, { profilePicture: profileNumber });
+            const response = await axios.put(`${serverUri}/api/users/${userId}`, { profilePicture: profileNumber });
             console.log(response.data);
 
-            await axios.post('/api/users/auto-login', { userId: userId })
+            await axios.post('${serverUri}/api/users/auto-login', { userId: userId })
             .then(response => {
                 //window.sessionStorage.setItem('username', response.data.username); 
                 //window.sessionStorage.setItem('profilePictureNumber', response.data.profilePicture); 

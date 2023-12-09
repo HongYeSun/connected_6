@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ImageItem } from '@enact/sandstone/ImageItem';
 import { Scroller } from '@enact/sandstone/Scroller';
 import { Spinner } from '@enact/sandstone/Spinner'; 
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const Feed = ({ onSelectVideo }) => {
     const [videos, setVideos] = useState([]);
@@ -11,7 +12,7 @@ const Feed = ({ onSelectVideo }) => {
     useEffect(() => {
         const fetchVideos = async () => {
             try {
-                const response = await axios.get('/api/videos');
+                const response = await axios.get(`${serverUri}/api/videos`);
                 setVideos(response.data);
                 setLoading(false);
             } catch (error) {

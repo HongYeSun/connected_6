@@ -29,7 +29,10 @@ import profileImage12 from '../images/profile12.png';
 import profileImage13 from '../images/profile13.png';
 import profileImage14 from '../images/profile14.png';
 import profileImage15 from '../images/profile15.png';
+import Routable from '@enact/ui/Routable';
+
 const serverUri = process.env.REACT_APP_SERVER_URI;
+
 
 const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');

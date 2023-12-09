@@ -6,6 +6,7 @@ import axios from 'axios';
 import $L from '@enact/i18n/$L';
 import { useNavigate } from 'react-router-dom';
 import css from "./Auth.module.less";
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const LoginPage = () => {
     const [loginDetails, setLoginDetails] = useState({
@@ -25,8 +26,8 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('/api/users/login', loginDetails);
-            
+            const response =  await axios.post(`${serverUri}/api/users/login`, loginDetails);
+      
             if (response.data) {
                 const newLoginStatus = {
                     isLoggedIn: true,
@@ -46,7 +47,7 @@ const LoginPage = () => {
             console.error('Login Error:', error);
             setLoginStatus({
                 ...loginStatus,
-                loginFailMessage: $L('Login failed. Please try again.')
+                loginFailMessage: $L('Login error')
             });
         }
     };

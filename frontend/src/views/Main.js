@@ -31,11 +31,14 @@ import profileImage14 from '../images/profile14.png';
 import profileImage15 from '../images/profile15.png';
 import Routable from '@enact/ui/Routable';
 
+const serverUri = process.env.REACT_APP_SERVER_URI;
+
+
 const Main = (props) => {
     const [profilePictureNumber, setProfilePictureNumber] = useState('');
     const [username, setUsername] = useState('');
     const [videoPlayerSource, setVideoPlayerSource] = useState("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-    const [videoID, setVideoID] = useState("656e09c27488b22852d5b6b3");
+    const [videoID, setVideoID] = useState("");
     const [videoStamp, setVideoStamp] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(0);
@@ -61,7 +64,7 @@ const Main = (props) => {
     useEffect(() => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
-            axios.get(`/api/users/${userId}`)
+            axios.get(`${serverUri}/api/users/${userId}`)
                 .then(response => {
                     const userData = response.data;
                     setUsername(userData.username);
@@ -91,7 +94,7 @@ const Main = (props) => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
             try {
-                await axios.post(`/api/users/${userId}/recent-videos`, { videoId });
+                await axios.get(`${serverUri}/api/videos/${videoId}`, videoId);
             } catch (error) {
                 console.error('Error updating recent videos:', error);
             }

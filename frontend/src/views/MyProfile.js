@@ -3,6 +3,7 @@ import Picker from '@enact/sandstone/Picker';
 import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
+
 import { Bar } from 'react-chartjs-2';
 //import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
@@ -26,6 +27,8 @@ import {
     Legend
   );
   
+const serverUri = process.env.REACT_APP_SERVER_URI;
+
 
 const MyProfile = () => {
     const [screenTimeOption, setScreenTimeOption] = useState(0);
@@ -36,7 +39,7 @@ const MyProfile = () => {
     useEffect(() => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
-            axios.get(`/api/users/${userId}`)
+            axios.get(`${serverUri}/api/users/${userId}`)
                 .then(response => {
                     setUserData(response.data);
                 })
@@ -51,6 +54,7 @@ const MyProfile = () => {
     };
 
     const screenTimeOptions = ["Accumulated", "Last 7 Days"];
+
     const options = {
         responsive: true,
         maintainAspectRatio: false,
@@ -62,6 +66,7 @@ const MyProfile = () => {
                     font: {
                         weight: 'bold',
                         size: '25px',
+
                     },
                     stepSize: 1 
                 }
@@ -102,16 +107,18 @@ const MyProfile = () => {
         const adjustedTimes = [...times.slice(9), ...times.slice(0, 9)];
         const barData = prepareBarData(adjustedTimes);
 
+
         return (
             <div style={{ height: '500px', width: '1200px' }}>
                 <Bar data={barData} options={options} />
             </div>
         );
+
     };
 
     const handleLogout = async () => {
         try {
-            await axios.get('/api/users/logout'); 
+            await axios.get(`${serverUri}/api/users/logout`); 
             window.sessionStorage.clear(); 
             navigate('/login');
         } catch (error) {

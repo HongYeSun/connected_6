@@ -6,7 +6,6 @@ const videoRoutes=require('./routes/videoRoutes');
 
 const app = express();
 
-
 const port = process.env.PORT || 4000;
 const mongoURI = process.env.MONGO_URI || 'mongodb://0.0.0.0:27017/mydb';
 
@@ -23,7 +22,6 @@ app.use(express.json());
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
 
-// 세션 설정
 app.use(session({
     secret: process.env.SECRET,
     resave: false,
@@ -42,10 +40,21 @@ app.use(passport.initialize());
 app.use(passport.session());
 const cron = require('node-cron');
 
-const { updatePopularVideo } = require('./routes/cron');
+const { updatePopularVideo,resetWeekAccessTimes } = require('./routes/cron');
 cron.schedule('0 * * * *', async () => {
     await updatePopularVideo();
 });
+cron.schedule('0 0 * * 1',async()=>{
+    await resetWeekAccessTimes();
+})
+const dayjs = require('dayjs');
+const timezone = require('dayjs/plugin/timezone');
+const utc = require('dayjs/plugin/utc');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Seoul'); //한국시간 설정
+
 app.use('/api/users', userRoutes);
 app.use('/api/videos', videoRoutes);
+
 app.listen(port, () => console.log(`Server listening on port ${port}`));

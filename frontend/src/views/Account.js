@@ -5,6 +5,7 @@ import {useEffect, useState} from 'react';
 import $L from '@enact/i18n/$L';
 import css from "./Auth.module.less";
 import { Scroller } from '@enact/sandstone/Scroller';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const Account = () => {
 	const [userDetails, setUserDetails] = useState({
@@ -25,7 +26,7 @@ const Account = () => {
 
 	const fetchUser = async () => {
 		try {
-			const response = await axios.get('/api/users');
+			const response = await axios.get(`${serverUri}/api/users`);
 			setState({users: response.data});
 			console.log('>>>>>> RESPONSE: ', response.data);
 		} catch (error) {
@@ -45,7 +46,7 @@ const Account = () => {
 
 	const handleDelete = async id => {
 		try {
-			await axios.delete(`/api/users/${id}`);
+			await axios.delete(`${serverUri}/api/users/${id}`);
 			setState(prevState => ({
 				users: prevState.users.filter(user => user._id !== id)
 			}));

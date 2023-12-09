@@ -1,19 +1,11 @@
 const User = require('../models/User');
 const errorMessages = require('./errorMessages');
 
-function getKoreanTime(){
-    const offset = 1000 * 60 * 60 * 9;
-    return new Date((new Date()).getTime() + offset);
-}
+const dayjs = require('dayjs');
+
 function isSameDate(date1, date2) {
-    const dt1=new Date(date1);
-    const dt2=new Date(date2);
-    return (
-        dt1.getFullYear() === dt2.getFullYear() &&
-        dt1.getMonth() === dt2.getMonth() &&
-        dt1.getDate() === dt2.getDate()&&
-        dt1.getHours()===dt2.getHours()
-    );
+    return dayjs(date1).isSame(dayjs(date2),'hour');
+
 }
 
 //Update accessTimes, lastRequestTime, weekAccessTimes
@@ -21,15 +13,19 @@ async function updateAccessTimes(user) {
     try {
         const savedUser = await User.findById(user._id);
         const lastRequestTime = savedUser.lastRequestTime;
-        const currentRequestTime = getKoreanTime();
+
+        const currentRequestTime = dayjs().tz();
 
         if (!isSameDate(lastRequestTime, currentRequestTime)) {
-            const hour = new Date(currentRequestTime).getHours();
+            const hour = currentRequestTime.get("h");
+
             savedUser.accessTimes[hour]++;
             savedUser.weekAccessTimes[hour]++;
             await savedUser.save();
         }
-        savedUser.lastRequestTime = currentRequestTime;
+
+        savedUser.lastRequestTime = currentRequestTime.toDate();
+
         await savedUser.save();
     } catch (error) {
         console.error(error);
@@ -37,4 +33,6 @@ async function updateAccessTimes(user) {
     }
 }
 
-module.exports = { getKoreanTime,updateAccessTimes };
+
+module.exports = { updateAccessTimes };
+

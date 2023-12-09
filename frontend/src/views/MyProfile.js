@@ -132,7 +132,7 @@ const MyProfile = () => {
             flexDirection: 'column', 
             justifyContent: 'center', 
             alignItems: 'center', 
-            height: '150vh' 
+            height: '110vh' 
         }}>
             <h2 style={{ textAlign: 'center' }}>Screen Time</h2>
             <div style={{ 

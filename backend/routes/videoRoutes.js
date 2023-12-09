@@ -87,8 +87,10 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
 router.post('/fetch-videos', async (req, res) => {
     try {
         const videoIds = req.body.videoIds;
-        const videos = await Video.find({ '_id': { $in: videoIds } });
-        console.log(videoIds,videos);
+        const videoIdsArray = videoIds.map(video => video.video); // Extracting video IDs from the array
+
+        const videos = await Video.find({ '_id': { $in: videoIdsArray } });
+      //  console.log(videoIds, videos);
         res.json(videos);
     } catch (error) {
         console.error(error);
@@ -192,7 +194,7 @@ router.post('/',  async (req, res) => {
 //Get all videos
 router.get('/', async (req, res) => {
     try {
-        const videos = await Video.find();
+        const videos = await Video.find().sort({ _id: -1 });
         res.json(videos);
     } catch (error) {
         res.status(500).json({ message: error.message });

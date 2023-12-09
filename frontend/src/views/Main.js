@@ -90,7 +90,7 @@ const Main = (props) => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
             try {
-                await axios.post(`/api/users/${userId}/recent-videos`, { videoId });
+                await axios.get(`/api/videos/${videoId}`, videoId);
             } catch (error) {
                 console.error('Error updating recent videos:', error);
             }

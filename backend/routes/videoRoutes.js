@@ -84,7 +84,17 @@ router.post('/bookmark/:videoId', isLoggedIn, async (req, res) => {
         return res.status(500).json({ message: errorMessages.error });
     }
 });
-
+router.post('/fetch-videos', async (req, res) => {
+    try {
+        const videoIds = req.body.videoIds;
+        const videos = await Video.find({ '_id': { $in: videoIds } });
+        console.log(videoIds,videos);
+        res.json(videos);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 router.get('/:videoId', isLoggedIn,async (req, res) => {
     try {
@@ -99,7 +109,11 @@ router.get('/:videoId', isLoggedIn,async (req, res) => {
             return res.status(404).json({ message: errorMessages.videoNotFound });
         }
 
-        const foundIndex = user.recentVideos.findIndex((recentVideo) => recentVideo.video.toString() === videoId);
+
+        let foundIndex=-1;
+        if(user.recentVideos.length) {
+            foundIndex = user.recentVideos.findIndex((recentVideo) => recentVideo.video.toString() === videoId)
+        }
         let lastWatchedTime = 0; // 초 초기값
 
         if (foundIndex !== -1) {
@@ -108,6 +122,7 @@ router.get('/:videoId', isLoggedIn,async (req, res) => {
             user.recentVideos.splice(foundIndex, 1); // 기존 항목 제거
         }
         user.recentVideos.unshift({ video: videoId, lastWatched: lastWatchedTime });
+
 
         video.genderViews[gender]++;
         video.views++;
@@ -126,7 +141,7 @@ router.post('/:videoId', isLoggedIn,async (req, res) => {
     try {
         const { videoId } = req.params;
         const { lastWatched }= req.body;
-
+        //console.log(req.body);
         const video = await Video.findById(videoId);
         const userId = req.user._id; // 로그인한 사용자의 ID
         const user = await User.findById(userId);
@@ -141,7 +156,7 @@ router.post('/:videoId', isLoggedIn,async (req, res) => {
         if (foundIndex !== -1) {
             user.recentVideos[foundIndex].lastWatched = lastWatched;
         }
-
+       // console.log(lastWatched,foundIndex);
         await updateAccessTimes(user);
         await user.save();
         return res.status(200).json({ message: errorMessages.lastWatchedSuccess});
@@ -151,6 +166,7 @@ router.post('/:videoId', isLoggedIn,async (req, res) => {
         return res.status(500).json({ message: errorMessages.error});
     }
 });
+
 
 
 //post new video
@@ -184,16 +200,6 @@ router.get('/', async (req, res) => {
 });
 
 
-router.post('/fetch-videos', async (req, res) => {
-    try {
-      const videoIds = req.body.videoIds;
-      const videos = await Video.find({ '_id': { $in: videoIds } });
-      res.json(videos);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-});
 
 
 module.exports = router;

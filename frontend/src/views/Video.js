@@ -34,13 +34,8 @@ const Video = (prop) => {
 		//console.log(document.cookie);
 		const fetchVideos = async () => {
 			try {
-				const response = await axios.get(`/api/videos/${prop.id}`,
-					{
-						params: { videoId: prop.id },
-						headers: {
-							Authorization: `Bearer ${accessToken}`
-						},
-					});
+				const response = await axios.get(`/api/videos/${prop.id}`, prop.id);
+				console.log(response);
 				const videoData = response.data;
 				setVideoInfo(videoData.video);
 				setVideostamp(videoData.lastWatched);
@@ -107,10 +102,12 @@ const Video = (prop) => {
 
 	const handleBackButtonClick = async () => {
 		// prop.setVideoStamp(videoRef.current.getMediaState().currentTime); //서버 통신 전
-		setVideostamp(videoRef.current.getMediaState().currentTime);
+		const video_stamp = Math.trunc(videoRef.current.getMediaState().currentTime);
+		setVideostamp(video_stamp);
 		try {
+			console.log(video_stamp);
 			const res = await axios.post(`/api/videos/${prop.id}`, {
-				"lastWatched": videostamp.toFixed()
+				"lastWatched": video_stamp
 			}, prop.id)
 			console.log(res);
 		} catch (error) {

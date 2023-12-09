@@ -47,6 +47,7 @@ const resetWeekAccessTimes = async () => {
         user.weekAccessTimes=[];
         user.weekAccessTimes = Array(24).fill(0);
         await user.save();
+
     }
     console.log("Reset week access time");
 };

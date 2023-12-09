@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ImageItem } from '@enact/sandstone/ImageItem';
+import { Icon } from '@enact/sandstone/Icon';
 import { Scroller } from '@enact/sandstone/Scroller';
 import { Spinner } from '@enact/sandstone/Spinner';
 import css from './Main.module.less';
@@ -51,6 +52,7 @@ const Home = ({ onSelectVideo }) => {
             }}
         >
         <Scroller direction="vertical">
+        <h2><Icon>demosync</Icon> View All Videos</h2>
             {videos.map((video, index) => (
                 <ImageItem
                     inline

@@ -6,7 +6,6 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
 const {updateAccessTimes} =require('./screenTime');
 
-
 //좋아요 버튼
 router.post('/like/:videoId', isLoggedIn, async (req, res) => {
     try {
@@ -27,13 +26,16 @@ router.post('/like/:videoId', isLoggedIn, async (req, res) => {
             // 비디오의 좋아요 수 감소 및 사용자 likedVideos에서 제거
             if(video.like>0)
                 video.like -= 1;
+
             user.likedVideos = user.likedVideos.filter((id) => id.toString() !== videoId);
             flag=false;
         } else {
             // 기존에 좋아요를 하지 않은 경우
             video.like += 1;
+
             user.likedVideos.unshift(videoId);
             flag=true;
+
         }
         await updateAccessTimes(user);
         await video.save();
@@ -98,7 +100,21 @@ router.post('/fetch-videos', async (req, res) => {
     }
 });
 
+router.get('/top-videos', async (req, res) => {
+    try {
+        const topVideos = await Video.find()
+                                     .sort({ views: -1, title: 1 })
+                                     .limit(10);
+        res.json(topVideos);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 router.get('/:videoId', isLoggedIn,async (req, res) => {
+
     try {
         const { videoId } = req.params;
 
@@ -203,5 +219,20 @@ router.get('/', async (req, res) => {
 
 
 
+router.post('/view/:videoId', async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+        video.views += 1; // 어느 탭에서든 비디오 관람시 view 증가
+        await video.save();
+        return res.status(200).json({ message: 'Views updated' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 module.exports = router;

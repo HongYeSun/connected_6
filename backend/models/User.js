@@ -21,6 +21,7 @@ const UserSchema = new mongoose.Schema({
 }, {
   versionKey: false});
 
+
 // 비밀번호 암호화
 UserSchema.pre('save', async function (next) {
   try {

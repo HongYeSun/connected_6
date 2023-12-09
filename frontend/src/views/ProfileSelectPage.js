@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Scroller } from '@enact/sandstone/Scroller';
 import { ImageItem } from '@enact/sandstone/ImageItem';
 import axios from 'axios';
-import $L from '@enact/i18n/$L';
 import css from "./Auth.module.less";
 const serverUri = process.env.REACT_APP_SERVER_URI;
 
@@ -41,8 +40,6 @@ const ProfileSelectPage = () => {
 
             await axios.post('${serverUri}/api/users/auto-login', { userId: userId })
             .then(response => {
-                //window.sessionStorage.setItem('username', response.data.username); 
-                //window.sessionStorage.setItem('profilePictureNumber', response.data.profilePicture); 
                 navigate('/main');
             });
         } catch (error) {
@@ -63,7 +60,6 @@ const ProfileSelectPage = () => {
                         style={{
                             width: '300px',
                             height: '300px',
-                            //marginRight: '5px' 
                         }}
                     >
                         {`BeanBird ${index + 1}`}

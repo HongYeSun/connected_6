@@ -77,6 +77,7 @@ const Video = (prop) => {
 				});
 			openLikePopup(true);
 		} else {
+
 			axios.post(`${serverUri}/api/videos/bookmark/${prop.id}`, prop.id)
 				.then(function (response) {
 					const bookmarkStatus = response.data;
@@ -214,7 +215,7 @@ const Video = (prop) => {
 						onClick={setPlayBack}
 					/>
 					<Button
-						icon="star"
+						icon="bookmark"
 						size="small"
 						onClick={() => handlePopupOpen('star')}
 					/>

@@ -3,6 +3,7 @@ import Picker from '@enact/sandstone/Picker';
 import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
+import { ResponsiveBar } from '@nivo/bar';
 
 import axios from 'axios';
 import { useConfigs } from '../hooks/configs';
@@ -33,6 +34,83 @@ const MyProfile = () => {
 
     const screenTimeOptions = ["Accumulated", "Last 7 Days"];
 
+
+    const ScreenTimeResponsiveBar = ({ data }) => (
+        <ResponsiveBar
+            data={data}
+            keys={['screen time']}
+            indexBy="hour"
+            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+            padding={0.3}
+            valueScale={{ type: 'linear' }}
+            indexScale={{ type: 'band', round: true }}
+            colors={{ scheme: 'nivo' }}
+            colorBy="indexValue"
+            defs={[
+                {
+                    id: 'dots',
+                    type: 'patternDots',
+                    background: 'inherit',
+                    color: '#38bcb2',
+                    size: 4,
+                    padding: 1,
+                    stagger: true
+                },
+                {
+                    id: 'lines',
+                    type: 'patternLines',
+                    background: 'inherit',
+                    color: '#eed312',
+                    rotation: -45,
+                    lineWidth: 6,
+                    spacing: 10
+                }
+            ]}
+            borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+            axisBottom={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legendPosition: 'middle',
+                legendOffset: 32
+            }}
+            axisLeft={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legendPosition: 'middle',
+                legendOffset: -40,
+                tickValues: "every 1"
+            }}
+            labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+            theme={{
+                axis: {
+                    legend: {
+                        text: {
+                            fontSize: 16, 
+                            fontWeight: 'bold',
+                            fill: '#555' 
+                        }
+                    },
+                    ticks: {
+                        text: {
+                            fontSize: 15, 
+                            fontWeight: 'bold',
+                            fill: '#555' 
+                        }
+                    }
+                },
+                labels: {
+                    text: {
+                        fontSize: 15, 
+                        fontWeight: 'bold',
+                        fill: '#555' 
+                    }
+                }
+            }}
+        />
+    );
+
     const screenTimeData = () => {
         if (!userData) {
             return (
@@ -48,11 +126,11 @@ const MyProfile = () => {
         }
         if (screenTimeOption === 0) {
             const adjustedTimes = [...userData.accessTimes.slice(9), ...userData.accessTimes.slice(0, 9)];
-    
-            const pieData = adjustedTimes.map((time, index) => ({
-                id: `${index}시`,
-                value: time
-            }));
+
+                const barData = adjustedTimes.map((time, index) => ({
+                    hour: `${index}시`,
+                    'screen time': time
+        }));
 
             return (
                 <div style={{ 
@@ -62,17 +140,32 @@ const MyProfile = () => {
                     height: '40vh' 
                 }}>
                     <div style={{ 
-                        height: '500px', 
-                        width: '500px'  
+                        height: '400px', 
+                        width: '1500px'  
                     }}>
-                    
+
+                        <ScreenTimeResponsiveBar data={barData} />
+
                     </div>
 
                 </div>
                 
             );
-        } else {
-            return <p>Last 7 Days' Screen Time Data</p>;
+        } else if (screenTimeOption === 1) {
+            const weekadjustedTimes = [...userData.weekAccessTimes.slice(9), ...userData.weekAccessTimes.slice(0, 9)];
+
+            const barData = weekadjustedTimes.map((time, index) => ({
+                hour: `${index}시`,
+                'screen time': time
+            }));
+
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40vh' }}>
+                    <div style={{ height: '400px', width: '1500px' }}>
+                        <ScreenTimeResponsiveBar data={barData} />
+                    </div>
+                </div>
+            );
         }
     };
 

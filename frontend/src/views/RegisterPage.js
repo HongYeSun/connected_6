@@ -57,38 +57,51 @@ const RegisterPage = () => {
         <div className={css.Container}>
             
                 <div className={css.RegisterformContainer}>
-                    <h2>Register</h2>
+                <h2>{$L('Register')}</h2>
+                <p>Enter your username, email, password and additional information to sign in.</p>
                     {errorMessage && (
                         <div className={css.errorContainer}>
                             <p className={css.errorMessage}>{errorMessage}</p>
                         </div>
                     )}
                     <br></br>
+                    <div className={css.inputField}>
+                    <label htmlFor="username">Username</label>
                     <InputField
                         type="text"
                         placeholder={$L("Username")}
                         value={userDetails.username}
                         onChange={(e) => handleChange(e, 'username')}
                     /><br /><br />
+                    </div>
+                    <div className={css.inputField}>
+                    <label htmlFor="email">Email</label>
                     <InputField
                         type="email"
                         placeholder={$L("Email")}
                         value={userDetails.email}
                         onChange={(e) => handleChange(e, 'email')}
                     /><br /><br />
+                    </div>
+                    <div className={css.inputField}>
+                    <label htmlFor="password">Password</label>
                     <InputField
                         type="password"
                         placeholder={$L("Password")}
                         value={userDetails.password}
                         onChange={(e) => handleChange(e, 'password')}
                     /><br /><br />
+                    </div>
+                    <div className={css.inputField}>
+                    <label htmlFor="age">Age</label>
                     <InputField
                         type="number"
                         placeholder={$L("Age")}
                         value={userDetails.age}
                         onChange={(e) => handleChange(e, 'age')}
                     /><br /><br />
-                    <h3>{$L('Gender')}</h3>
+                    </div>
+                    <label htmlFor="gender">Gender</label>
                     <RadioItem
                         selected={userDetails.gender === 'female'}
                         onToggle={() => handleGenderChange({ data: 'female' })}

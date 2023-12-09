@@ -5,9 +5,11 @@ const Video=require('../models/Video');
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
+
 const {updateAccessTimes} =require('./screenTime');
 const PopularVideo = require("../models/PopularVideo");
 const dayjs = require('dayjs');
+
 //Login
 router.post('/login', isNotLoggedIn, async(req, res, next) => {
     passport.authenticate('local',  (err, user, info) => {
@@ -16,6 +18,7 @@ router.post('/login', isNotLoggedIn, async(req, res, next) => {
             console.error(err);
             return next(err);
         }
+
 
         if (info) {
             console.error(info);
@@ -287,4 +290,5 @@ router.get('/:id', isLoggedIn, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
 module.exports = router;

@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const Video = (prop) => {
 	const videoRef = useRef();
-
+	const accessToken = "s%3AmVZW5833LC8p_rJt2vL9pWClmxOUZkKl.GFZB3Ug22E7Re7Gm43IR%2BdoVj8vwM2I5zMHFXuNZhzU";
 	const [loading, setLoading] = useState(true);
 	const [isLikePopupOpen, openLikePopup] = useState(false);
 	const [isBookmarkPopupOpen, openBookmarkPopup] = useState(false);
@@ -17,111 +17,116 @@ const Video = (prop) => {
 	const [onPlayCount, setOnPlayCount] = useState(0);
 	const [videostamp, setVideostamp] = useState(0);
 	const [videoInfo, setVideoInfo] = useState({
+		_id: "",
 		title: "",
-		subtitle: "",
 		description: "",
-		thumb: "",
-		source: "",
-		bookmark: 0,
+		genderViews: {
+			male: 0,
+			female: 0,
+			other: 0
+		},
 		views: 0,
-		like: 0,
-		genderLikes: { male: 0, female: 0, other: 0 }
+		createdAt: "",
+		updatedAt: ""
 	});
 
 	useEffect(() => {
-		const fetchVideo = async () => {
+		//console.log(document.cookie);
+		const fetchVideos = async () => {
 			try {
-				const response = await axios.get(`/api/videos/${prop.id}`);
-				setVideoInfo(response.data);
+				const response = await axios.get(`/api/videos/${prop.id}`,
+					{
+						params: { videoId: prop.id },
+						headers: {
+							Authorization: `Bearer ${accessToken}`
+						},
+					});
+				const videoData = response.data;
+				setVideoInfo(videoData.video);
+				setVideostamp(videoData.lastWatched);
 				setLoading(false);
 			} catch (error) {
 				console.error('Error fetching videos:', error);
 				setLoading(false);
 			}
 		};
-		fetchVideo();
-		{/*
-		axios.post(`/api/lastwatched/${prop.id}`, videostamp)
-			.then(function (response) {
-				console.log("timestamp posted", response);
-			})
-			.catch(function (error) {
-				console.log(error);
-			});*/}
+		fetchVideos();
 	}, []);
+
+	// function getCookie(name) {
+	// 	var nameEQ = name + "=";
+	// 	var ca = document.cookie.split(';');
+	// 	for (var i = 0; i < ca.length; i++) {
+	// 		var c = ca[i];
+	// 		while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+	// 		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+	// 	}
+	// 	return null;
+	// }
 
 
 	const handlePopupOpen = (key) => {
 		if (key === 'heart') {
-			if (videoInfo.video.like === 0) {
-				setAlertMessage("Liked!");
-				videoInfo.video.like = 1;
-			} else {
-				setAlertMessage("Like canceled!");
-				videoInfo.video.like = 0;
-			}
+			axios.post(`/api/videos/like/${prop.id}`, prop.id)
+				.then(function (response) {
+					const likeStatus = response.data;
+					if (likeStatus.flag) {
+						setAlertMessage("Liked!");
+					} else {
+						setAlertMessage("Like canceled!");
+					}
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
 			openLikePopup(true);
 		} else {
-			if (videoInfo.video.bookmark === 0) {
-				setAlertMessage("Bookmarked!");
-				videoInfo.video.bookmark = 1
-			} else {
-				setAlertMessage("Bookmark canceled!");
-				videoInfo.video.bookmark = 0
-			}
+			axios.post(`/api/videos/bookmark/${prop.id}`, prop.id)
+				.then(function (response) {
+					const bookmarkStatus = response.data;
+					if (bookmarkStatus.flag) {
+						setAlertMessage("Bookmarked!");
+					} else {
+						setAlertMessage("Bookmark canceled!");
+					}
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
 			openBookmarkPopup(true);
 		}
 	};
 
 	const handleLikePopupClose = () => {
-		axios.post(`/api/videos/like/${prop.id}`, prop.id)
-			.then(function (response) {
-				// console.log("like result", response);
-			})
-			.catch(function (error) {
-				console.log(error);
-			});
 		openLikePopup(false);
 	};
 
 	const handleBookmarkPopupClose = () => {
-		axios.post(`/api/videos/bookmark/${prop.id}`, prop.id)
-			.then(function (response) {
-				// console.log("bookmark result", response);
-			})
-			.catch(function (error) {
-				console.log(error);
-			});
 		openBookmarkPopup(false);
 	};
 
-	const handleBackButtonClick = () => {
-		prop.setVideoStamp(videoRef.current.getMediaState().currentTime); // 서버 통신 전
-
-		{/*setVideostamp(videoRef.current.getMediaState().currentTime);
-		axios.post(`/api/lastwatched/${prop.id}`, videostamp)
-			.then(function (response) {
-				console.log("timestamp posted", response);
-			})
-			.catch(function (error) {
-				console.log(error);
-			});*/}
-
+	const handleBackButtonClick = async () => {
+		// prop.setVideoStamp(videoRef.current.getMediaState().currentTime); //서버 통신 전
+		setVideostamp(videoRef.current.getMediaState().currentTime);
+		try {
+			const res = await axios.post(`/api/videos/${prop.id}`, {
+				"lastWatched": videostamp.toFixed()
+			}, prop.id)
+			console.log(res);
+		} catch (error) {
+			console.log(error);
+		}
 		prop.setActiveTab(0);
 	};
 
 	const gotoStartTime = async () => {
 		if (onPlayCount === 0) {
-			videoRef.current.seek(prop.videoStamp); // 서버 통신 전
-
-			{/*axios.get(`/api/lastwatched/${prop.id}`)
-				.then(response => {
-					const data = response.data;
-					if (data.time.length > 0) {
-						videoRef.current.seek(data.time);
-					}
-				})
-			.catch(error => console.error('Error fetching data:', error));*/}
+			// videoRef.current.seek(prop.videoStamp); // 서버 통신 전
+			if (videostamp !== undefined) {
+				videoRef.current.seek(videostamp);
+			} else {
+				videoRef.current.seek(0);
+			}
 			setOnPlayCount(1);
 		}
 	}
@@ -170,9 +175,9 @@ const Video = (prop) => {
 				loop
 				playbackRateHash={{ fastForward: ['1.25', '1.5', '2', '0.5', '0.75', '1.0'] }}
 				miniFeedbackHideDelay={2000}
-				title={videoInfo.video.title}
-				thumbnailSrc={videoInfo.video.thumb}
-				poster={videoInfo.video.thumb}
+				title={videoInfo.title}
+				// thumbnailSrc={videoInfo.video.thumb}
+				// poster={videoInfo.video.thumb}
 				titleHideDelay={4000}
 				jumpBy={10}
 				onPlay={gotoStartTime}
@@ -180,7 +185,7 @@ const Video = (prop) => {
 			>
 				<source src={prop.src} type="video/mp4" />
 				<infoComponents>
-					{videoInfo.video.description}
+					{videoInfo.description}
 				</infoComponents>
 				<MediaControls
 					jumpBackwardIcon="jumpbackward"

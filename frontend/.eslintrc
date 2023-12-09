@@ -1,0 +1,10 @@
+{
+	"extends": ["enact-proxy/strict"],
+	"rules": {
+		"indent": "off"
+	},
+	"env": {
+		"browser": true,
+		"node": false
+	}
+}

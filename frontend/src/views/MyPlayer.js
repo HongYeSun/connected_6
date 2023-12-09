@@ -4,7 +4,8 @@ import { ImageItem } from '@enact/sandstone/ImageItem';
 import { Scroller } from '@enact/sandstone/Scroller';
 import { Icon } from '@enact/sandstone/Icon';
 import { Spinner } from '@enact/sandstone/Spinner';
-import Video from './Video'; 
+import Video from './Video';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const MyPlayer = ({onSelectVideo}) => {
     const [likedVideos, setLikedVideos] = useState([]);
@@ -16,32 +17,43 @@ const MyPlayer = ({onSelectVideo}) => {
     useEffect(() => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
-            axios.get(`/api/users/${userId}`)
+            axios.get(`${serverUri}/api/users/${userId}`)
                 .then(response => {
                     const userData = response.data;
-                    fetchLikedAndBookmarkedVideos(userData);
-                    if (userData.recentVideos.length > 0) {
-                        fetchRecentVideos(userData.recentVideos);
-                    }
+                    fetchLikedAndBookmarkedVideos();
+                    fetchRecentVideos();
+                    setLoading(false);
                 })
                 .catch(error => console.error('Error fetching user data:', error));
         }
     }, []);
 
-    const fetchRecentVideos = async (videoIds) => {
-        try {
-            const response = await axios.post('/api/videos/fetch-videos', { videoIds });
-            const fetchedVideos = response.data;
-            const orderedVideos = videoIds.map(id => 
-                fetchedVideos.find(video => video._id === id)
-            );
+    const fetchRecentVideos =  () => {
 
-            setRecentVideos(orderedVideos);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching recent videos:', error);
-            setLoading(false);
-        }
+        // 최근비디오
+        axios.get(`${serverUri}/api/users/recent-videos`)
+            .then(response => {
+                setRecentVideos(response.data);
+                console.log(response.data);
+            })
+            .catch(error => console.error('Error fetching recent videos:', error));
+    };
+
+    const fetchLikedAndBookmarkedVideos = () => {
+
+        // 좋아요
+        axios.get(`${serverUri}/api/users/like`)
+            .then(response => {
+                setLikedVideos(response.data);
+            })
+            .catch(error => console.error('Error fetching liked videos:', error));
+
+        // 북마크
+        axios.get(`${serverUri}/api/users/bookmark`)
+            .then(response => {
+                setBookmarkedVideos(response.data);
+            })
+            .catch(error => console.error('Error fetching bookmarked videos:', error));
     };
 
     const fetchLikedAndBookmarkedVideos = (userData) => {

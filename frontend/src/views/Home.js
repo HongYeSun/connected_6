@@ -5,6 +5,7 @@ import { Icon } from '@enact/sandstone/Icon';
 import { Scroller } from '@enact/sandstone/Scroller';
 import { Spinner } from '@enact/sandstone/Spinner';
 import css from './Main.module.less';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 
 const Home = ({ onSelectVideo }) => {
@@ -14,7 +15,7 @@ const Home = ({ onSelectVideo }) => {
     useEffect(() => {
         const fetchVideos = async () => {
             try {
-                const response = await axios.get('/api/videos');
+                const response = await axios.get(`${serverUri}/api/videos`);
                 setVideos(response.data);
                 setLoading(false);
             } catch (error) {
@@ -44,7 +45,7 @@ const Home = ({ onSelectVideo }) => {
                 height: '70vh',
                 transform: 'scale(1)',
                 transformOrigin: 'top',
-                width: '100vw',
+                width: '90vw',
                 display: 'flex',
                 justifyContent: 'center',
                 margin: '0 auto'
@@ -59,7 +60,7 @@ const Home = ({ onSelectVideo }) => {
                     label={video.subtitle}
                     src={video.thumb}
                     onClick={() => handleClickEvent(video)}
-                    style={{ height: 190, width: 229.33333333333331 }}
+                    style={{ height: 300, width:  360}}
                 >
                     {video.title}
                 </ImageItem>

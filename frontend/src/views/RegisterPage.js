@@ -7,6 +7,7 @@ import $L from '@enact/i18n/$L';
 import css from "./Auth.module.less";
 import { Scroller } from '@enact/sandstone/Scroller';
 import { useNavigate } from 'react-router-dom';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const RegisterPage = () => {
     const [userDetails, setUserDetails] = useState({
@@ -42,7 +43,7 @@ const RegisterPage = () => {
         }
 
         try {
-            const response = await axios.post('/api/users', userDetails);
+            const response = await axios.post(`${serverUri}/api/users`, userDetails);
             window.sessionStorage.setItem('userId', response.data._id);
             navigate('/profile-select');
         } catch (error) {
@@ -52,8 +53,9 @@ const RegisterPage = () => {
     };
 
     return (
+        <Scroller direction="vertical">
         <div className={css.Container}>
-            <Scroller direction="vertical">
+            
                 <div className={css.RegisterformContainer}>
                 <h2>{$L('Register')}</h2>
                 <p>Enter your username, email, password and additional information to sign in.</p>
@@ -126,8 +128,9 @@ const RegisterPage = () => {
                         {$L('Login')}
                     </Button>
                 </div>
-            </Scroller>
+            
         </div>
+        </Scroller>
     );
 };
 

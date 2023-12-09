@@ -16,3 +16,7 @@ dist
 # others
 npm-debug.log
 .eslintcache
+
+#intellij
+.idea
+.env

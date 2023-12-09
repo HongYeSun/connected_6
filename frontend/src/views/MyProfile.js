@@ -4,8 +4,10 @@ import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveBar } from '@nivo/bar';
+
 import axios from 'axios';
 import { useConfigs } from '../hooks/configs';
+const serverUri = process.env.REACT_APP_SERVER_URI;
 
 const MyProfile = () => {
     const [screenTimeOption, setScreenTimeOption] = useState(0);
@@ -16,7 +18,7 @@ const MyProfile = () => {
     useEffect(() => {
         const userId = window.sessionStorage.getItem('userId');
         if (userId) {
-            axios.get(`/api/users/${userId}`)
+            axios.get(`${serverUri}/api/users/${userId}`)
                 .then(response => {
                     setUserData(response.data);
                 })
@@ -31,6 +33,7 @@ const MyProfile = () => {
     };
 
     const screenTimeOptions = ["Accumulated", "Last 7 Days"];
+
 
     const ScreenTimeResponsiveBar = ({ data }) => (
         <ResponsiveBar
@@ -140,7 +143,9 @@ const MyProfile = () => {
                         height: '400px', 
                         width: '1500px'  
                     }}>
+
                         <ScreenTimeResponsiveBar data={barData} />
+
                     </div>
 
                 </div>
@@ -166,7 +171,7 @@ const MyProfile = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.get('/api/users/logout'); 
+            await axios.get(`${serverUri}/api/users/logout`); 
             window.sessionStorage.clear(); 
             navigate('/login');
         } catch (error) {

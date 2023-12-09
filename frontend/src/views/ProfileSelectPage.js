@@ -39,6 +39,8 @@ const ProfileSelectPage = () => {
 
             await axios.post('/api/users/auto-login', { userId: userId })
             .then(response => {
+                //window.sessionStorage.setItem('username', response.data.username); 
+                //window.sessionStorage.setItem('profilePictureNumber', response.data.profilePicture); 
                 navigate('/main');
             });
         } catch (error) {
@@ -59,6 +61,7 @@ const ProfileSelectPage = () => {
                         style={{
                             width: '300px',
                             height: '300px',
+                            //marginRight: '5px' 
                         }}
                     >
                         {`BeanBird ${index + 1}`}

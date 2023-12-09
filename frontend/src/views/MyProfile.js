@@ -3,9 +3,29 @@ import Picker from '@enact/sandstone/Picker';
 import Button from '@enact/sandstone/Button';
 import { Spinner } from '@enact/sandstone/Spinner';
 import { useNavigate } from 'react-router-dom';
-import { ResponsiveBar } from '@nivo/bar';
+import { Bar } from 'react-chartjs-2';
+//import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
 import { useConfigs } from '../hooks/configs';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+  } from 'chart.js';
+  
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title, 
+    Tooltip,
+    Legend
+  );
+  
 
 const MyProfile = () => {
     const [screenTimeOption, setScreenTimeOption] = useState(0);
@@ -31,137 +51,62 @@ const MyProfile = () => {
     };
 
     const screenTimeOptions = ["Accumulated", "Last 7 Days"];
-
-    const ScreenTimeResponsiveBar = ({ data }) => (
-        <ResponsiveBar
-            data={data}
-            keys={['screen time']}
-            indexBy="hour"
-            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-            padding={0.3}
-            valueScale={{ type: 'linear' }}
-            indexScale={{ type: 'band', round: true }}
-            colors={{ scheme: 'nivo' }}
-            colorBy="indexValue"
-            defs={[
-                {
-                    id: 'dots',
-                    type: 'patternDots',
-                    background: 'inherit',
-                    color: '#38bcb2',
-                    size: 4,
-                    padding: 1,
-                    stagger: true
-                },
-                {
-                    id: 'lines',
-                    type: 'patternLines',
-                    background: 'inherit',
-                    color: '#eed312',
-                    rotation: -45,
-                    lineWidth: 6,
-                    spacing: 10
-                }
-            ]}
-            borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-            axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legendPosition: 'middle',
-                legendOffset: 32
-            }}
-            axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legendPosition: 'middle',
-                legendOffset: -40,
-                tickValues: "every 1"
-            }}
-            labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-            theme={{
-                axis: {
-                    legend: {
-                        text: {
-                            fontSize: 16, 
-                            fontWeight: 'bold',
-                            fill: '#555' 
-                        }
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        aspectRatio: 2,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    font: {
+                        weight: 'bold',
+                        size: '25px',
                     },
-                    ticks: {
-                        text: {
-                            fontSize: 15, 
-                            fontWeight: 'bold',
-                            fill: '#555' 
-                        }
-                    }
-                },
-                labels: {
-                    text: {
-                        fontSize: 15, 
-                        fontWeight: 'bold',
-                        fill: '#555' 
+                    stepSize: 1 
+                }
+            },
+            x: {
+                beginAtZero: true,
+                ticks: {
+                    font: {
+                        weight: 'bold',
+                        size: '18px'
                     }
                 }
-            }}
-        />
-    );
+            }
+        },
+    };
+
+    const prepareBarData = (accessTimes) => {
+        const labels = accessTimes.map((_, index) => `${index}시`);
+        
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'screen time',
+                data: accessTimes,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+        return data;
+    };
 
     const screenTimeData = () => {
         if (!userData) {
-            return (
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    height: '60vh' 
-                }}>
-                    <Spinner size="large" /> 
-                </div>
-            );
+            return <Spinner size="large" />;
         }
-        if (screenTimeOption === 0) {
-            const adjustedTimes = [...userData.accessTimes.slice(9), ...userData.accessTimes.slice(0, 9)];
+        const times = screenTimeOption === 0 ? userData.accessTimes : userData.weekAccessTimes;
+        const adjustedTimes = [...times.slice(9), ...times.slice(0, 9)];
+        const barData = prepareBarData(adjustedTimes);
 
-                const barData = adjustedTimes.map((time, index) => ({
-                    hour: `${index}시`,
-                    'screen time': time
-        }));
-
-            return (
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    height: '40vh' 
-                }}>
-                    <div style={{ 
-                        height: '400px', 
-                        width: '1500px'  
-                    }}>
-                        <ScreenTimeResponsiveBar data={barData} />
-                    </div>
-
-                </div>
-                
-            );
-        } else if (screenTimeOption === 1) {
-            const weekadjustedTimes = [...userData.weekAccessTimes.slice(9), ...userData.weekAccessTimes.slice(0, 9)];
-
-            const barData = weekadjustedTimes.map((time, index) => ({
-                hour: `${index}시`,
-                'screen time': time
-            }));
-
-            return (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40vh' }}>
-                    <div style={{ height: '400px', width: '1500px' }}>
-                        <ScreenTimeResponsiveBar data={barData} />
-                    </div>
-                </div>
-            );
-        }
+        return (
+            <div style={{ height: '500px', width: '1200px' }}>
+                <Bar data={barData} options={options} />
+            </div>
+        );
     };
 
     const handleLogout = async () => {
@@ -174,27 +119,13 @@ const MyProfile = () => {
         }
     };
 
-    const renderTVInfo = () => (
-        <div>
-            <h2>TV Information</h2>
-            {data && (
-                <ul>
-                    <li><strong>Model Name:</strong> {data.modelName}</li>
-                    <li><strong>Firmware Version:</strong> {data.firmwareVersion}</li>
-                    <li><strong>UHD:</strong> {data.UHD}</li>
-                    <li><strong>SDK Version:</strong> {data.sdkVersion}</li>
-                </ul>
-            )}
-        </div>
-    );
-
     return (
         <div style={{ 
             display: 'flex', 
             flexDirection: 'column', 
             justifyContent: 'center', 
             alignItems: 'center', 
-            height: '120vh' 
+            height: '150vh' 
         }}>
             <h2 style={{ textAlign: 'center' }}>Screen Time</h2>
             <div style={{ 
@@ -217,7 +148,6 @@ const MyProfile = () => {
             <div>
                 {screenTimeData()}
             </div>
-            {renderTVInfo()}
             <br /><br />
             <Button onClick={handleLogout}>Logout</Button>
         </div>

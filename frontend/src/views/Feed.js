@@ -18,7 +18,7 @@ const Feed = ({ onSelectVideo }) => {
         const fetchTopVideos = async () => {
             try {
 
-                const response = await axios.get(`${serverUri}/api/videos/top-videos`); //TODO: 이걸 top video로 수정
+                const response = await axios.get(`${serverUri}/api/videos/top-videos`);
 
                 setVideos(response.data);
                 setLoading(false);

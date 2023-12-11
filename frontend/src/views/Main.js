@@ -123,7 +123,7 @@ const Main = (props) => {
                 <Header className={css.Title} title={
                     <>
                         <Image 
-                            src={beanbox2} 
+                            src={beanbox1} 
                             style={{ width: '80px', height: '80px', marginRight: '10px', borderRadius: '30px'}} 
                         />
                         <span className={css.titleText}>{$L('BEANBOX')}</span>

@@ -15,6 +15,8 @@ import MyPlayer from './MyPlayer';
 import Feed from './Feed'; 
 import Status from './Status';
 import css from './Main.module.less';
+import { useNavigate } from 'react-router-dom';
+import {ImageItem} from '@enact/sandstone/ImageItem';
 import profileImage1 from '../images/profile1.png';
 import profileImage2 from '../images/profile2.png';
 import profileImage3 from '../images/profile3.png';
@@ -30,6 +32,7 @@ import profileImage12 from '../images/profile12.png';
 import profileImage13 from '../images/profile13.png';
 import profileImage14 from '../images/profile14.png';
 import profileImage15 from '../images/profile15.png';
+import beanbox1 from '../images/beanbox1.png'
 import Routable from '@enact/ui/Routable';
 
 const serverUri = process.env.REACT_APP_SERVER_URI;
@@ -43,6 +46,7 @@ const Main = (props) => {
     const [videoStamp, setVideoStamp] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(0);
+    const navigate = useNavigate();
 
     const profileImageMap = {
         1: profileImage1,

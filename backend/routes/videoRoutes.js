@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Video = require('../models/Video');
 const User = require('../models/User');
+const PopularVideo = require("../models/PopularVideo");
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const errorMessages = require('./errorMessages');
 const {updateAccessTimes} =require('./screenTime');
@@ -100,17 +101,94 @@ router.post('/fetch-videos', async (req, res) => {
     }
 });
 
-router.get('/top-videos', async (req, res) => {
+
+
+//인기 비디오
+router.get('/top-videos', isLoggedIn, async (req, res) => {
     try {
-        const topVideos = await Video.find()
-                                     .sort({ views: -1, title: 1 })
-                                     .limit(10);
-        res.json(topVideos);
+        const userId = req.user._id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: errorMessages.userNotFound });
+        }
+
+        const popularVideos = await PopularVideo.findOne();
+        const genderVideoIds = popularVideos['total']; //  ObjectId 배열
+
+        const genderVideos = [];
+        for (const videoId of genderVideoIds) {
+            const video = await Video.findById(videoId);
+            if (video) {
+                genderVideos.push(video);
+            }
+            
+           
+        }
+        await updateAccessTimes(user);
+        return res.status(200).json(genderVideos);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: errorMessages.serverError });
+    }
+
+});
+
+
+
+router.get('/isliked/:videoId', isLoggedIn, async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const userId = req.user._id; // 로그인한 사용자의 ID
+
+        const video = Video.findById(videoId);
+        const user = await User.findById(userId);
+        //console.log(videoId,userId);
+        // 비디오가 없는 경우
+        if (!video) {
+            return res.status(404).json({ message: errorMessages.videoNotFound });
+        }
+       
+        // 사용자가 이미 좋아요를 한 경우 (좋아요 취소)
+        if (user.likedVideos.includes(videoId)) {
+            return res.status(200).json({result: true});
+        } else {
+            // 기존에 좋아요를 하지 않은 경우
+            return res.status(200).json({result: false});
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: errorMessages.error });
     }
 });
+
+router.get('/isbookmarked/:videoId', isLoggedIn, async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const userId = req.user._id; // 로그인한 사용자의 ID
+
+        const video = Video.findById(videoId);
+        const user = await User.findById(userId);
+
+        // 비디오가 없는 경우
+        if (!video) {
+            return res.status(404).json({ message: errorMessages.videoNotFound });
+        }
+        //북마크 이미 한 경우
+        if (user.bookmarkedVideos.includes(videoId)) {
+            return res.status(200).json({result: true});
+           
+        } else {
+            // 기존에 북마크를 하지 않은 경우
+            return res.status(200).json({result: false});
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: errorMessages.error });
+    }
+});
+
 
 
 router.get('/:videoId', isLoggedIn,async (req, res) => {

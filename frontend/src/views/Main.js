@@ -112,6 +112,9 @@ const Main = (props) => {
             console.error('Error updating video views:', error);
         }
     };
+    const handleClickEvent = () => {
+        navigate('/profile-select');
+    };
 
     return (
         <div className={css.backGround}>
@@ -123,15 +126,15 @@ const Main = (props) => {
                         <Spinner size="small" className={css.centeredSpinner} />
                     ) : (
                         profilePictureNumber && (
-                            <Image
-                                sizing="fill"
-                                src={profileImageMap[profilePictureNumber]}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '5px'
-                                }}
-                            />
+                            <div style={{ borderRadius: '10px', overflow: 'hidden', width: '200px', height: '200px' }}>
+                                <ImageItem
+                                    sizing="fill"
+                                    src={profileImageMap[profilePictureNumber]}
+                                    onClick={() => handleClickEvent()}
+                                    style={{ width: '100%', height: '100%' }}
+                                >
+                                </ImageItem>
+                            </div>
                         )
                     )}
                 </div>

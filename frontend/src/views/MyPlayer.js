@@ -42,14 +42,14 @@ const MyPlayer = ({onSelectVideo}) => {
     const fetchLikedAndBookmarkedVideos = (userData) => {
         const userId = userData._id;
         // 좋아요
-        axios.get(`/api/users/like`)
+        axios.get(`${serverUri}/api/users/like`)
             .then(response => {
                 setLikedVideos(response.data);
             })
             .catch(error => console.error('Error fetching liked videos:', error));
 
         // 북마크
-        axios.get(`/api/users/bookmark`)
+        axios.get(`${serverUri}/api/users/bookmark`)
             .then(response => {
                 setBookmarkedVideos(response.data);
             })

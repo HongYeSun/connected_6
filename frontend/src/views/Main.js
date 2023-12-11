@@ -126,13 +126,14 @@ const Main = (props) => {
                         <Spinner size="small" className={css.centeredSpinner} />
                     ) : (
                         profilePictureNumber && (
-                            <div style={{ borderRadius: '10px', overflow: 'hidden', width: '200px', height: '200px' }}>
+                            <div style={{ borderRadius: '10px', overflow: 'hidden', width: '200px', height: '250px', paddingRight: '30px' }}>
                                 <ImageItem
                                     sizing="fill"
                                     src={profileImageMap[profilePictureNumber]}
                                     onClick={() => handleClickEvent()}
-                                    style={{ width: '100%', height: '100%' }}
+                                    style={{ width: '200px', height: '250px' }}
                                 >
+                                <Icon size="tiny">edit</Icon>
                                 </ImageItem>
                             </div>
                         )

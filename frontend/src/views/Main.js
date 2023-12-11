@@ -6,6 +6,8 @@ import { Image } from '@enact/sandstone/Image';
 import { Icon } from '@enact/sandstone/Icon';
 import { Scroller } from '@enact/sandstone/Scroller';
 import { Spinner } from '@enact/sandstone/Spinner';
+import {ImageItem} from '@enact/sandstone/ImageItem';
+import { useNavigate } from 'react-router-dom';
 import $L from '@enact/i18n/$L';
 import Home from './Home';
 import Video from './Video';
@@ -39,6 +41,7 @@ const Main = (props) => {
     const [videoStamp, setVideoStamp] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(0);
+    const navigate = useNavigate();
 
     const profileImageMap = {
         1: profileImage1,
@@ -102,6 +105,9 @@ const Main = (props) => {
             console.error('Error updating video views:', error);
         }
     };
+    const handleClickEvent = () => {
+        navigate('/profile-select');
+    };
 
     return (
         <div className={css.backGround}>
@@ -113,15 +119,16 @@ const Main = (props) => {
                         <Spinner size="small" className={css.centeredSpinner} />
                     ) : (
                         profilePictureNumber && (
-                            <Image
-                                sizing="fill"
-                                src={profileImageMap[profilePictureNumber]}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '5px'
-                                }}
-                            />
+                            <div style={{ borderRadius: '10px', overflow: 'hidden', width: '200px', height: '200px' }}>
+                                <ImageItem
+                                    sizing="fill"
+                                    src={profileImageMap[profilePictureNumber]}
+                                    onClick={() => handleClickEvent()}
+                                    style={{ width: '100%', height: '100%' }}
+                                >
+                                </ImageItem>
+                            </div>
+
                         )
                     )}
                 </div>

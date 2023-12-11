@@ -39,8 +39,8 @@ const MyPlayer = ({onSelectVideo}) => {
             .catch(error => console.error('Error fetching recent videos:', error));
     };
 
-    const fetchLikedAndBookmarkedVideos = (userData) => {
-        const userId = userData._id;
+    const fetchLikedAndBookmarkedVideos = () => {
+
         // 좋아요
         axios.get(`${serverUri}/api/users/like`)
             .then(response => {

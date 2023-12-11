@@ -120,7 +120,15 @@ const Main = (props) => {
         <div className={css.backGround}>
             <Scroller>
             <Panel {...props}>
-                <Header className={css.Title} title={$L('BeanBox')}>
+                <Header className={css.Title} title={
+                    <>
+                        <Image 
+                            src={beanbox2} 
+                            style={{ width: '80px', height: '80px', marginRight: '10px', borderRadius: '30px'}} 
+                        />
+                        <span className={css.titleText}>{$L('BEANBOX')}</span>
+                    </>
+                }>
                 <div className={css.profileImageContainer}>
                     {isLoading ? (
                         <Spinner size="small" className={css.centeredSpinner} />

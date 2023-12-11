@@ -121,16 +121,17 @@ const Main = (props) => {
     };
 
     return (
+        <Scroller direction= "vertical">
         <div className={css.backGround}>
-            <Scroller>
+            <Scroller direction= "vertical">
             <Panel {...props}>
                 <Header className={css.Title} title={
                     <>
                         <Image 
                             src={beanbox1} 
-                            style={{ width: '80px', height: '80px', marginRight: '10px', borderRadius: '30px'}} 
+                            style={{ width: '80px', height: '80px', marginRight: '20px', borderRadius: '30px'}} 
                         />
-                        <span className={css.titleText}>{$L('BEANBOX')}</span>
+                        <span className={css.titleText}>{$L('BeanBox')}</span>
                     </>
                 }>
                 <div className={css.profileImageContainer}>
@@ -138,12 +139,12 @@ const Main = (props) => {
                         <Spinner size="small" className={css.centeredSpinner} />
                     ) : (
                         profilePictureNumber && (
-                            <div style={{ borderRadius: '10px', overflow: 'hidden', width: '200px', height: '250px', paddingRight: '30px' }}>
+                            <div style={{ borderRadius: '10px', overflow: 'hidden', width: '180px', height: '250px', paddingRight: '30px' }}>
                                 <ImageItem
                                     sizing="fill"
                                     src={profileImageMap[profilePictureNumber]}
                                     onClick={() => handleClickEvent()}
-                                    style={{ width: '200px', height: '250px' }}
+                                    style={{ width: '180px', height: '250px' }}
                                 >
                                 <Icon size="tiny">edit</Icon>
                                 </ImageItem>
@@ -199,6 +200,7 @@ const Main = (props) => {
         </Panel>
         </Scroller>
 		</div>
+        </Scroller>
     );
 };
 

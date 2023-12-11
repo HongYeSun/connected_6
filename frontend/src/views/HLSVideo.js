@@ -301,7 +301,7 @@ const HLSVideo = (prop) => {
 				</Alert>
 			<div style={{
 				position: "absolute",
-				top: '200px',
+				top: '100px',
 				left: '0px'
 			}}>
 				{statShow ? <Status /> : null}

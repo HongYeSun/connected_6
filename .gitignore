@@ -1,0 +1,6 @@
+#intellij
+.idea
+
+dist
+
+node_modules
